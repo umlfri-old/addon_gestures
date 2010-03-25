@@ -1,0 +1,7 @@
+from BoundaryAlgorithm import CBoundaryAlgorithm
+from GestureAlgorithm import CGestureAlgorithm
+from Gesture import CGesture
+from GestureSet import CGestureSet
+from BoundaryGestureSet import CBoundaryGestureSet
+from Description import CDescription
+from BoundaryDescription import CBoundaryDescription
