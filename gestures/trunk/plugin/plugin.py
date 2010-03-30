@@ -6,11 +6,18 @@ from lib.Depend.gtk2 import gtk
 from lib.Depend.gtk2 import gobject
 import os
 
+
 import random
 
 class Plugin(object):
     def __init__(self,interface):
+        
+    
+        #self.__app = app
+        #self.__handler = None
+        
         self.interface = interface
+        
         #pridanie GUI komponentov do pluginu 
         try:
             self.interface.GetAdapter().GetMainMenu().AddMenuItem(None,
@@ -28,33 +35,11 @@ class Plugin(object):
             self.interface.GetAdapter().GetMainMenu().GetItems()[a].GetSubmenu().AddStockMenuItem(
             lambda:self.ChangeMode(),2,'gtk-info','Help',None,None)
             
-            ic = os.getcwd()+"\\share\\addons\\gestures\\plugin\\icon\\icon.png"
+            ic = os.getcwd()+"\\share\\addons\\gestures\\plugin\\icon\\button.png"
             print type(ic)
             
-            self.interface.GetAdapter().GetButtonBar().AddButton(lambda:self.OpenSettings(),-1,'Activate',True)
-            
-            
-            #ic,                                                                                                                                                                               
-            #self.interface.GetAdapter().GetMainMenu().GetItems()[(len(self.interface.GetAdapter().GetMainMenu().GetItems())-1)].GetSubMenu().AddCheckMenuItem(
-            #None,0,'Activated','True',None)
-
-   #AddCheckMenuItem                                                               
- #           self.interface.GetAdapter().GetButtonBar().AddMenuItem(None,
-  #          -1,'Gestures','True',os.getcwd()+"icon.png")
-                  
-            #self.interface.AddMenu('MenuItem', 'mnuMenubar', 'gestures', None, text = 'Gestures')
-            #self.interface.AddMenu('submenu', 'mnuMenubar/gestures', None, None)
-            #self.interface.AddMenu('MenuItem', 'mnuMenubar/gestures', 'ChangeMode', self.ChangeMode, text = 'Activate')
-            #self.interface.AddMenu('MenuItem', 'mnuMenubar/gestures', 'OpenSettings', self.OpenSettings, text = 'Settings')
-                                                        
-            #self.interface.AddMenu(
-            #'ToolButton', 
-            #'hndCommandBar', 
-            #''.join(chr(random.randint(97,125))for i in xrange(6)),
-            #self.ChangeMode,
-            #stock_id = 'gtk-refresh',
-            #text = 'Activate gestures')
-             
+            self.interface.GetAdapter().GetButtonBar().AddButton(lambda:self.OpenSettings(),-1,'Activate',ic,True)
+                     
         except PluginInvalidParameter:
             pass
               
@@ -72,5 +57,23 @@ class Plugin(object):
         self.window.show()
         gtk.main()      
         #CGestureGUI().Main() 
+    
+    def Start(self):
+        print 'Example patch plugin started'        
+        #self.__handler = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('button-press-event', self.__clicked)
+    
+    def CanStop(self):
+        return True
+    
+    def Stop(self):
+        print 'Example patch plugin stopped'
+        
+        #if self.__handler is not None:
+         #   self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler)
+          #  self.__handler = None
+    
+    def __clicked(self, widget, event):
+        pass
+       # print 'You clicked at (%.0f, %0f) with button no. %d' % (event.x, event.y, event.button)
          
 pluginMain = Plugin
