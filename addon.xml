@@ -10,13 +10,15 @@
 		<CommonLicense name="GPL-2" />
 	</Author>
 
-	<Icon path="icon.png" />
+	<Icon path="icons/icon.png" />
 	<Description>
 		This plugin support recognition of mouse gestures in some type of diagrams.
     </Description>
 
 	<Plugin>
 		<Code os="all" language="python" path="plugin" />
+        <Patch module="patchPlugin" />
+
 		
 		<Metamodel required="urn:umlfri.org:metamodel:gestures" />
 	</Plugin>
