@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AddOn xmlns="http://umlfri.org/xmlschema/addon.xsd">
+	<Identity uri="urn:umlfri.org:plugin:gestures" />
+
+	<FriendlyName name="Mouse gestures recognizer" version="0.1" />
+	<Author>
+		<Name name="Peter Pajta" />
+		<Homepage url="http://umlfri.org" />
+
+		<CommonLicense name="GPL-2" />
+	</Author>
+
+	<Icon path="icons/icon.png" />
+	<Description>
+		This plugin support recognition of mouse gestures in some type of diagrams.
+    </Description>
+
+	<Plugin>
+		<Code os="all" language="python" path="plugin" />
+        <Patch module="patchPlugin" />
+
+		
+		<Metamodel required="urn:umlfri.org:metamodel:gestures" />
+	</Plugin>
+</AddOn>
