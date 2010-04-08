@@ -1,3 +1,7 @@
+#from __future__ import absolute_import
+#from ...gestureLogic.GestureManager import CGestureManager
+
+
 from lib.Depend.gtk2 import gtk
 from lib.Depend.gtk2 import gobject
 import os
@@ -6,15 +10,10 @@ import time
 from lib.Drawing.Canvas import CGtkCanvas, CSvgCanvas, CCairoCanvas, CExportCanvas
 from lib.Drawing import Element
 
-#from share.addons.gestures.gestureLogic.GestureManager import CGestureManager
 
-class CPatchPlugin(gobject.GObject):
-    __gsignals__ = {
-       'sendDrawingCoordinates':  (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_INT,gobject.TYPE_STRING))}    
-    
+class CPatchPlugin():
+
     def __init__(self, app):
-        gobject.GObject.__init__(self)
-        print os.getcwd()
         #ISTY KOD
         self.__app = app
         self.drawing_area = self.__app.GetWindow('frmMain').picDrawingArea.picDrawingArea        
@@ -24,15 +23,13 @@ class CPatchPlugin(gobject.GObject):
         self.counter = 0
         self.init = False                
         self.gc = None   
-        self.pixels = [()]
-        self.helpPixels = [()]        
+        self.pixels = [[]]
         self.oldPaint = self.__app.GetWindow('frmMain').picDrawingArea.Paint
         self.color = '#00FF00'         
         self.size = 3 
         
         #self.manager = CGestureManager()
         #print self.manager
-        #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
                                                                      
         #self.__app.GetWindow('frmMain').tbToolBox.Show()                    
         self.minz = 9999
@@ -85,6 +82,7 @@ class CPatchPlugin(gobject.GObject):
         self.__handler2 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('motion-notify-event', self.__motion)
         self.__handler3 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('button-release-event', self.__released)                
         self.__app.GetWindow('frmMain').picDrawingArea.Paint = self.Repaint
+        #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
         
         #self.DiagramType = self.__app.GetProject().GetMetamodel().GetDiagramFactory().GetDiagram(DiagramId) 
         #self.__app.GetWindow('frmMain').tbToolBox.SetVisible(False) 
@@ -113,7 +111,14 @@ class CPatchPlugin(gobject.GObject):
                                 
     def DrawBrush(self,widget, x, y):
         self.counter = self.counter+1
-        self.pixels.append((x,y))            
+        pos = (x,y)
+        if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+           self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos) == None:
+            self.pixels.append([x,y,'N'])
+        else:
+            self.pixels.append([x,y,'A'])        
+        print 
+                    
         self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)
         
     def prebliknutie(self):
@@ -128,7 +133,7 @@ class CPatchPlugin(gobject.GObject):
         self.oldPaint()
         if len(self.pixels)>1:       
             for i in self.pixels[1:len(self.pixels)]:
-                self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],3,3)        
+                self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],3,3)                        
                 
     def ClearPixels(self):
         if len(self.pixels)>1:
@@ -146,25 +151,32 @@ class CPatchPlugin(gobject.GObject):
                 self.DrawBrush(widget, event.x, event.y)
                         
     def __clicked(self, widget, event):
-        if self.init == False:
-            self.init = True
-            self.CreateGraphicContext()
-            #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
-        self.DrawBrush(widget, event.x, event.y)    
+        if event.button == 1:
+            if self.init == False:
+                self.init = True
+                self.CreateGraphicContext()
+                #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
+            self.DrawBrush(widget, event.x, event.y)    
         
         if event.button == 3:
             print "PRAVE"
+            self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
             #self.prebliknutie()
         print 'You clicked at (%.0f, %0f) with button no. %d' % (event.x, event.y, event.button)
                     
     def __released(self,widget,event):
-        roz = 0;
-        for i in self.pixels[2:len(self.pixels)]:
-            roz = self.pixels[1][1]-i[1]
-            print roz                 
-        if self.counter<20:
+        #roz = 0;
+        #for i in self.pixels[2:len(self.pixels)]:
+            #roz = self.pixels[1][1]-i[1]
+            #print roz      
+        if event.button == 1:
+            if (self.pixels[1][2] == 'A') and (self.pixels[len(self.pixels)-1][2]=='A'):
+                self.pixels[len(self.pixels)-1][2] = 'X'
+                print "ANO"            
+            print "pustil"    
+            if self.counter<20:
             #este prebliknutie
-            self.prebliknutie()
-            del self.pixels[:]
-            self.Repaint()
-        self.counter = 0
+                self.prebliknutie()
+                del self.pixels[:]
+                self.Repaint()
+            self.counter = 0

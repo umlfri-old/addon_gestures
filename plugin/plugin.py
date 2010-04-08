@@ -1,26 +1,20 @@
-from __future__ import absolute_import
-from ..gestureLogic.GestureManager import CGestureManager
-
 from lib.Addons.Plugin.Client.Interface import CInterface
 from lib.Exceptions import *
 
 from GestureGUI import CGestureGUI
-#from .gestureLogic.GestureManager import CGestureManager
-#from share.addons.gestures.plugin.Settings import CSettings
-
+from gestureLogic.GestureManager import CGestureManager
 
 import os
 import random
 
 class Plugin(object):
     def __init__(self,interface):
-        #self.set = CSettings()
         self.interface = interface                      
         self.interface.SetGtkMainloop()        
         self.gui = CGestureGUI()
         self.gui.connect('changeGestureSettings', self.ChangeGestureSettings)
-        #gobject.GObject.connect('sendDrawingCoordinates',self.GetDrawingCoordinates)        
         self.manager = CGestureManager()
+        self.ada = self.interface.GetAdapter()
         
         #pridanie GUI komponentov do pluginu         
         try:
@@ -40,15 +34,22 @@ class Plugin(object):
                                     
         except PluginInvalidParameter:
             pass
+                
+        self.ada.AddNotification('gesture-invocated',self.GestureInvocate)
                                                 
     def ChangeGestureMode(self,parameter):  
         if (self.gestureButton.GetActive() == True):
-            self.interface.GetAdapter().Notify('gestureModeStarted',True)            
+            self.ada.Notify('gestureModeStarted',True)
             self.gestureButton.SetLabel('Deactivate')   
         else:
-            self.interface.GetAdapter().Notify('gestureModeStarted',False)                        
+            self.ada.Notify('gestureModeStarted',False)
             self.gestureButton.SetLabel('Activate')
              
+    def GestureInvocate(self,coord):
+        print "AAA"
+        print coord        
+        pass
+    
     def OpenGestureSettings(self,widget):
         if self.gui.getOpen() == False:
            self.gui.Main()
@@ -57,7 +58,7 @@ class Plugin(object):
         self.interface.GetAdapter().Notify('changeGestureSettings',size,color)
     
     def GetDrawingCoordinates(self,widget,coor):        
-        print "A"
+        print coor
         #self.interface.AddNotification('coordinatesSend',self.FillCoordinates)
        
 pluginMain = Plugin
