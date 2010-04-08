@@ -1,3 +1,4 @@
+from GesutreManager import CGestureManager
 from BoundaryAlgorithm import CBoundaryAlgorithm
 from GestureAlgorithm import CGestureAlgorithm
 from Gesture import CGesture
