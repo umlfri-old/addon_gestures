@@ -1,9 +1,13 @@
+from __future__ import absolute_import
+from ..gestureLogic.GestureManager import CGestureManager
+
 from lib.Addons.Plugin.Client.Interface import CInterface
 from lib.Exceptions import *
 
 from GestureGUI import CGestureGUI
-from .gestureLogic.GestureManager import CGestureManager
+#from .gestureLogic.GestureManager import CGestureManager
 #from share.addons.gestures.plugin.Settings import CSettings
+
 
 import os
 import random
