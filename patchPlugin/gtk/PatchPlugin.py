@@ -1,9 +1,16 @@
 #from __future__ import absolute_import
 #from ...gestureLogic.GestureManager import CGestureManager
 
-
 from lib.Depend.gtk2 import gtk
 from lib.Depend.gtk2 import gobject
+from lib.Connections import CConnectionObject
+from lib.Drawing import CConnection,CElement
+from lib.Exceptions.UserException import *
+
+from lib.Elements import CElementObject
+
+
+
 import os
 import time
 
@@ -13,8 +20,7 @@ from lib.Drawing import Element
 
 class CPatchPlugin():
 
-    def __init__(self, app):
-        #ISTY KOD
+    def __init__(self, app):     
         self.__app = app
         self.drawing_area = self.__app.GetWindow('frmMain').picDrawingArea.picDrawingArea        
         self.__handler = None
@@ -23,28 +29,19 @@ class CPatchPlugin():
         self.counter = 0
         self.init = False                
         self.gc = None   
-        self.pixels = [[]]
+        self.pixels = []
         self.oldPaint = self.__app.GetWindow('frmMain').picDrawingArea.Paint
         self.color = '#00FF00'         
         self.size = 3 
-        
-        #self.manager = CGestureManager()
-        #print self.manager
-                                                                     
-        #self.__app.GetWindow('frmMain').tbToolBox.Show()                    
-        self.minz = 9999
-        self.maxv = 0
-        self.mins = 9999
-        self.maxj = 0 
-        #for x in self.zoznam_suradnic[1:len(self.zoznam_suradnic)]:
-         #   if x[0] >maxv: maxv=x[0]
-          #  if x[0] <minz: minz=x[0]
-           # if x[1] >maxj: maxj=x[1]
-#            if x[1] <mins: mins=x[1] 
+        self.poz = ()
+        #minimalna dlzka ciary
+        self.minimumLength = 20                                                                             
                                   
     def Start(self):
         print 'Example patch plugin started'
         self.__app.GetPluginAdapter().AddNotification('gestureModeStarted',self.GestureMode)
+        self.__app.GetPluginAdapter().AddNotification('gesture-recognition',self.GestureRecognize)
+        
         #self.__app.GetPluginAdapter().AddNotification('gestureModeStarted',self.GestureSettings)
         
     def CanStop(self):
@@ -56,8 +53,7 @@ class CPatchPlugin():
 
     def GestureMode(self,mode):
         print mode        
-        if mode == True:
-            print "A"
+        if mode == True:                                                        
             self.GesturesOn()
             #print
             #if self.init == False:
@@ -67,7 +63,67 @@ class CPatchPlugin():
             print "B"
             self.GesturesOff()
             
-                     
+    def AddElement(self,elementName):
+        ElementType = self.__app.GetProject().GetMetamodel().GetElementFactory().GetElement(elementName)
+        ElementObject = CElementObject(ElementType)
+        newElement = CElement(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, ElementObject)
+        newElement.SetPosition(self.poz)
+        self.__app.GetWindow('frmMain').picDrawingArea.emit('add-element', ElementObject, self.__app.GetWindow('frmMain').picDrawingArea.Diagram, None)                      
+        self.Repaint()            
+        
+    def AddConnection(self,variables):
+        source = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                        self.__app.GetWindow('frmMain').picDrawingArea.canvas, variables[3])
+        
+        destination = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                        self.__app.GetWindow('frmMain').picDrawingArea.canvas, variables[4])        
+        if (source.GetObject().GetType().GetId()=='Note' or 
+           destination.GetObject().GetType().GetId()=='Note'):
+            type = 'Note Link'
+        else:
+            type = variables[5][1]
+        try:                            
+            ConnectionType = self.__app.GetProject().GetMetamodel().GetConnectionFactory().GetConnection(type)        
+            points = variables[2]
+            obj = CConnectionObject(ConnectionType, source.GetObject(), destination.GetObject())
+            x = CConnection(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, obj, source, destination, points)
+            self.Repaint()
+        except ConnectionRestrictionError:
+            self.Repaint()        
+            self.__app.GetWindow('frmMain').picDrawingArea.emit('run-dialog', 'warning', _('Invalid connection'))
+                
+            
+    def GestureRecognize(self,result):
+        print "ROZOZNAJ"
+        if result[0] == 'error':
+            print "Error"
+            return         
+        if result[0] == 'from left to right':
+            print "A"
+            #self.__app.GetWindow('frmMain').nbTabs.NextTab()        
+            return
+        if result[0] == 'from right to left':
+            print "B"
+            #self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
+            return
+        if result[0] == 'from up to down':
+            print "A"
+        if result[0] == 'from down to up':
+            print "A"
+        if result[0] == 'element':
+            self.AddElement(result[2][1])
+            return                                             
+        if result[0] == 'connection':
+            self.AddConnection(result)
+            return            
+        if result[0] == 'delete element':
+            pos = (result[1][0],result[1][1])
+            itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+            self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)
+            self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
+            self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
+            return                                                                         
+                                 
     def GestureSettings(self,color,size):
         print color
         print size
@@ -155,28 +211,69 @@ class CPatchPlugin():
             if self.init == False:
                 self.init = True
                 self.CreateGraphicContext()
-                #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
-            self.DrawBrush(widget, event.x, event.y)    
+                #self.__app.GetWindow('frmMain').tbToolBox.Hide()
+                self.DrawBrush(widget, event.x, event.y)    
         
         if event.button == 3:
-            print "PRAVE"
-            self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
+            #self.__app.GetWindow('frmMain').nbTabs.NextTab() 
+            if len(self.pixels)>=20:
+                #print "PRAVE"
+                #print self.pixels
+                self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
+                self.poz = (event.x,event.y)
+                #del self.pixels[:]
+                
+                #ConnectionType = self.__app.GetProject().GetMetamodel().GetConnectionFactory().GetConnection('Association')
+                #points = []
+                #points.append((self.pixels[0][0],self.pixels[0][1]))
+                #points.append((self.pixels[len(self.pixels)-1][0],self.pixels[len(self.pixels)-1][1]))
+                
+                #source = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                #        self.__app.GetWindow('frmMain').picDrawingArea.canvas, points[0])
+                
+                #destination = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                #        self.__app.GetWindow('frmMain').picDrawingArea.canvas, points[1])
+                
+                #print ConnectionType
+                #print points
+                #print source
+                #print destination
+          
+                #(type, points, source), destination = self.__NewConnection, itemSel
+                #obj = CConnectionObject(ConnectionType, source.GetObject(), destination.GetObject())
+                #x = CConnection(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, obj, source, destination, points[1:])
+                
+                
+                
+                
+                #self.__app.GetWindow('frmMain').picDrawingArea.picDrawingArea.window.draw_lines(
+                #                            self.DragGC, self.__oldNewConnection)
+                #self.__app.GetWindow('frmMain').picDrawingArea.Pridaj(toolBtnSel, event)
+            #self.prebliknutie()
+        
+                self.Repaint()            
+            else:
+                self.prebliknutie()
+            del self.pixels[:]
+            #toolBtnSel = ('Element','Object')
+            #self.__app.GetWindow('frmMain').picDrawingArea.Pridaj(toolBtnSel, event)
             #self.prebliknutie()
         print 'You clicked at (%.0f, %0f) with button no. %d' % (event.x, event.y, event.button)
                     
-    def __released(self,widget,event):
-        #roz = 0;
-        #for i in self.pixels[2:len(self.pixels)]:
-            #roz = self.pixels[1][1]-i[1]
-            #print roz      
+    def __released(self,widget,event):            
+        #ak sa jedna o gesto spojenia, musi byt zlozene z dvoch tahov, pri pusteni mysi sa nastavi priznak      
         if event.button == 1:
-            if (self.pixels[1][2] == 'A') and (self.pixels[len(self.pixels)-1][2]=='A'):
-                self.pixels[len(self.pixels)-1][2] = 'X'
-                print "ANO"            
-            print "pustil"    
-            if self.counter<20:
-            #este prebliknutie
+            if self.counter<self.minimumLength:
+            #prebliknutie pri kratkom geste
                 self.prebliknutie()
                 del self.pixels[:]
                 self.Repaint()
-            self.counter = 0
+                self.counter = 0
+                return            
+            if (self.pixels[0][2] == 'A') and (self.pixels[len(self.pixels)-1][2]=='A'):
+                self.pixels[len(self.pixels)-1][2] = 'X'
+                self.counter = 0
+                return          
+            self.pixels[len(self.pixels)-1][2] = 'P'
+            self.counter = 0                                
+            

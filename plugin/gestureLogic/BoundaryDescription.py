@@ -18,6 +18,14 @@ class CBoundaryDescription(CDescription):
         self.pixelSize = 0.0;
         #vysledne suradnice        
         self.coordinates = []
+    
+    #prevrat mriezku hore nohami
+    def ReverseGestureBox(self):
+        p = int(self.gestureSize/2)
+        for i in range(p):
+            pom = self.gestureBox[i]
+            self.gestureBox[i] = self.gestureBox[len(self.gestureBox)-i-1]
+            self.gestureBox[len(self.gestureBox)-i-1] = pom            
         
     def CreateGestureBox(self):
         self.BoxInitialization()
@@ -30,11 +38,11 @@ class CBoundaryDescription(CDescription):
             if pozy >= self.gestureSize: pozy = self.gestureSize-1
             #print pozx,pozy            
             self.gestureBox[pozy][pozx] = 1                              
-        
-        for i in range(len(self.gestureBox)):
-            print self.gestureBox[len(self.gestureBox)-i-1]            
-        print ""
-        
+        self.ReverseGestureBox()
+        print self.gestureBox
+        #for i in range(len(self.gestureBox)):
+        #    print self.gestureBox[len(self.gestureBox)-i-1]
+                
     #Vytvorenie prazdnej mriezky
     def BoxInitialization(self):
         for i in range(self.gestureSize):

@@ -1,4 +1,4 @@
-<GestureRecognizer objectID="class" >
+<GestureRecognizer objectID="Class" >
 	<Gesture name = "rectangle"/>
 </GestureRecognizer>
     

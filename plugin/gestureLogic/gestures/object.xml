@@ -1,0 +1,4 @@
+<GestureRecognizer objectID="Object" >
+	<Gesture name = "rectangleUpperLine"/>
+</GestureRecognizer>
+    

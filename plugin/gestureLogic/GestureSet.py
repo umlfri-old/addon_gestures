@@ -1,7 +1,7 @@
 from Gesture import CGesture
 
 #kolekcia gest daneho typu
-class CGestureSet:
+class CGestureSet(object):
     #konstruktor
     def __init__(self,id):        
         #id typu algoritmu, ktoreho vzorky budu nacitane
@@ -14,9 +14,15 @@ class CGestureSet:
         self.loadGestures()
         
     #nacita gesta daneho algoritmu do pamate
-    def loadGestures(self):
-        path = ""
-        a = CGesture(self.id,path)
-        self.gestures.append(a)
-        return None
+    def LoadGestures(self):
+        pass
+    
+    def GetGestures(self):
+        return self.gestures
+    
+    def GetGesture(self,ind):
+        return self.gestures[ind]
+    
+    
+    
     
