@@ -1,6 +1,6 @@
 from GestureSet import CGestureSet
 from Gesture import CGesture
-import os,glob
+import os
 
 #kolekcia gest daneho typu
 class CBoundaryGestureSet(CGestureSet):
@@ -16,11 +16,13 @@ class CBoundaryGestureSet(CGestureSet):
         self.loadGestures()
         
     #nacita gesta daneho algoritmu do pamate
-    def loadGestures(self): 
-        for path in glob.glob(os.path.join(self.directory, '*.*')):
-            a = CGesture(self.id,path)
-            for i in range(len(a.description)):
-                a.description[i].gestureSize = self.boxsize
+    def loadGestures(self):        
+        ces = os.getcwd()+'\\share\\addons\\gestures\\plugin\\gestureLogic\\gestureDefinitions\\'
+        for path in os.listdir(ces):
+            if path[0]!='.':
+                a = CGesture(self.id,ces+path)
+                for i in range(len(a.description)):
+                    a.description[i].gestureSize = self.boxsize
                 a.FillDescription()
                 self.gestures.append(a)
-        
+            

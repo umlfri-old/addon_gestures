@@ -14,7 +14,7 @@ class Plugin(object):
         self.gui = CGestureGUI()
         self.gui.connect('changeGestureSettings', self.ChangeGestureSettings)
         self.manager = CGestureManager()
-        self.ada = self.interface.GetAdapter()
+        self.ada = self.interface.GetAdapter()      
         
         #pridanie GUI komponentov do pluginu         
         try:
@@ -33,21 +33,41 @@ class Plugin(object):
             self.gestureButton = bar.AddButton('bbnGesturesActivate', self.ChangeGestureMode,-1,'Activate',ic,True)
                                     
         except PluginInvalidParameter:
-            pass
-                
+            pass                
         self.ada.AddNotification('gesture-invocated',self.GestureInvocate)
                                                 
-    def ChangeGestureMode(self,parameter):  
+    def ChangeGestureMode(self,parameter):                                            
         if (self.gestureButton.GetActive() == True):
             self.ada.Notify('gestureModeStarted',True)
             self.gestureButton.SetLabel('Deactivate')   
         else:
             self.ada.Notify('gestureModeStarted',False)
             self.gestureButton.SetLabel('Activate')
-             
+        
+    def GetCurrentDiagram(self):
+        dia = self.ada.GetCurrentDiagram().GetType()
+        for i in self.interface.GetAdapter().GetProject().GetMetamodel().GetDiagrams():
+            if i.GetName() == dia:
+                return i
+                
     def GestureInvocate(self,coord):
-        print "AAA"
-        print coord        
+        print "ZACIATOK"
+        ele = []
+        con = []
+        dia = self.GetCurrentDiagram()
+        for i in dia.GetElements():
+            ele.append(i.GetName())
+        for i in dia.GetConnections():                    
+            con.append(i.GetName())                
+        self.manager.SetCoord(coord)        
+        self.manager.CreateDictionary(ele,con)
+        self.ada.Notify('gesture-recognition',self.manager.Recognize())
+        self.manager.alg.DeleteCoordinates()                
+        self.manager.alg.ClearBox()
+        self.manager.DeleteCoordinates()
+        print self.manager.alg.box
+        print self.manager.coord
+        print self.manager.alg.coordinates           
         pass
     
     def OpenGestureSettings(self,widget):

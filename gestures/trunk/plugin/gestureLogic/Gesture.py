@@ -3,7 +3,7 @@ import xml.etree.ElementTree as etree
 from BoundaryDescription import CBoundaryDescription
 
 #Gesto zadefinovane lubovolnym algoritmom
-class CGesture:
+class CGesture(object):
     #konstruktor
     def __init__(self,algorithm,path):
         #id pouziteho algoritmu
@@ -33,12 +33,11 @@ class CGesture:
         root = tree.getroot()
         #parsovanie korenoveho elementu
         self.name = root.get("name")
-        self.gestureType = root.get("type")
-        
-        #parsovanie algoritmov
+        self.gestureType = root.get("type")        
+        #parsovanie algoritmov       
         for i in range(len(root)):
             if (root[i].get("name")=="Boundary Box Algorithm"):
-                for j in range(len(root[i])):       
+                for j in range(len(root[i])):
                     lines = []
                     for k in range(len(root[i][j])):
                         coordinate = []
@@ -48,3 +47,6 @@ class CGesture:
                     des = CBoundaryDescription(1,lines)  
                     self.description.append(des)
         return None
+    
+    def GetName(self):
+        return self.name

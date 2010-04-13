@@ -1,5 +1,5 @@
 #interface pre popis gesta
-class CDescription:
+class CDescription(object):
     #konstruktor
     def __init__(self,id):
         #id pouziteho algoritmu
