@@ -16,8 +16,8 @@ class CBoundaryGestureSet(CGestureSet):
         self.loadGestures()
         
     #nacita gesta daneho algoritmu do pamate
-    def loadGestures(self):        
-        ces = os.getcwd()+'\\share\\addons\\gestures\\plugin\\gestureLogic\\gestureDefinitions\\'
+    def loadGestures(self):      
+        ces = os.path.join(os.path.dirname(__file__), "gestureDefinitions")+"//"
         for path in os.listdir(ces):
             if path[0]!='.':
                 a = CGesture(self.id,ces+path)

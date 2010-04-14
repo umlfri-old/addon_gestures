@@ -48,7 +48,8 @@ class CPatchPlugin():
         return True
     
     def CreateGraphicContext(self):
-        self.gc =  self.drawing_area.window.new_gc(foreground = gtk.gdk.Color(self.color))        
+        self.gc =  self.drawing_area.window.new_gc(foreground = gtk.gdk.Color(self.color))
+        #self.gc =  self.drawing_area.window.new_gc(foreground = gtk.gdk.Color(#00FF00))        
         pass
 
     def GestureMode(self,mode):
@@ -91,8 +92,7 @@ class CPatchPlugin():
         except ConnectionRestrictionError:
             self.Repaint()        
             self.__app.GetWindow('frmMain').picDrawingArea.emit('run-dialog', 'warning', _('Invalid connection'))
-                
-            
+                            
     def GestureRecognize(self,result):
         print "ROZOZNAJ"
         if result[0] == 'error':
@@ -122,8 +122,17 @@ class CPatchPlugin():
             self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)
             self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
             self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
-            return                                                                         
-                                 
+            return
+        if result[0] == 'delete connection':
+            print 'd'
+            pos = (result[1][0],result[1][1])
+            itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+            self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)
+            self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
+            self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
+            print 'd'            
+            return
+                                                                                                                          
     def GestureSettings(self,color,size):
         print color
         print size
@@ -138,6 +147,7 @@ class CPatchPlugin():
         self.__handler2 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('motion-notify-event', self.__motion)
         self.__handler3 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('button-release-event', self.__released)                
         self.__app.GetWindow('frmMain').picDrawingArea.Paint = self.Repaint
+        #print "pes"
         #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
         
         #self.DiagramType = self.__app.GetProject().GetMetamodel().GetDiagramFactory().GetDiagram(DiagramId) 
@@ -167,14 +177,18 @@ class CPatchPlugin():
                                 
     def DrawBrush(self,widget, x, y):
         self.counter = self.counter+1
-        pos = (x,y)
+        self.CreateGraphicContext()
+        pos = (x,y)        
         if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
            self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos) == None:
             self.pixels.append([x,y,'N'])
         else:
-            self.pixels.append([x,y,'A'])        
-        print 
-                    
+            if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos),CElement):
+                self.pixels.append([x,y,'AE'])
+            if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+               self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos),CConnection):
+                self.pixels.append([x,y,'AC'])                                                
         self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)
         
     def prebliknutie(self):
@@ -208,11 +222,11 @@ class CPatchPlugin():
                         
     def __clicked(self, widget, event):
         if event.button == 1:
-            if self.init == False:
-                self.init = True
-                self.CreateGraphicContext()
+            #if self.init == False:
+            #    self.init = True
+           #self.CreateGraphicContext()
                 #self.__app.GetWindow('frmMain').tbToolBox.Hide()
-                self.DrawBrush(widget, event.x, event.y)    
+           self.DrawBrush(widget, event.x, event.y)    
         
         if event.button == 3:
             #self.__app.GetWindow('frmMain').nbTabs.NextTab() 
@@ -221,7 +235,7 @@ class CPatchPlugin():
                 #print self.pixels
                 self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
                 self.poz = (event.x,event.y)
-                #del self.pixels[:]
+                del self.pixels[:]
                 
                 #ConnectionType = self.__app.GetProject().GetMetamodel().GetConnectionFactory().GetConnection('Association')
                 #points = []
@@ -269,8 +283,9 @@ class CPatchPlugin():
                 del self.pixels[:]
                 self.Repaint()
                 self.counter = 0
-                return            
-            if (self.pixels[0][2] == 'A') and (self.pixels[len(self.pixels)-1][2]=='A'):
+                return
+            #Pridanie priznaku spojenia            
+            if (self.pixels[0][2] == 'AE') and (self.pixels[len(self.pixels)-1][2]=='AE'):
                 self.pixels[len(self.pixels)-1][2] = 'X'
                 self.counter = 0
                 return          

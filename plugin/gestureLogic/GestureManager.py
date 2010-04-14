@@ -1,4 +1,4 @@
-import os,glob
+import os.path
 from lxml import etree
 import xml.etree.ElementTree as etree
 from BoundaryAlgorithm import CBoundaryAlgorithm
@@ -13,11 +13,26 @@ class CGestureManager(object):
     def FindOutGestureType(self):
         self.type = ""
         pocet = 0
+        pocNE = 0
+        pocC = 0
+        self.coordinatesC = []
+        print self.helpCoord
         for i in self.helpCoord:                        
             if i[2] != 'N':
                 pocet = pocet+1
+            if i[2] != 'AE':
+                pocNE = pocNE+1
+            if i[2] == 'AC':
+                self.coordinatesC.append(i);
+                pocC = pocC + 1
+            
         if pocet == len(self.helpCoord):            
-            self.type = 'delete element'
+            self.type = 'delete element'        
+                
+        if pocNE == len(self.helpCoord) and pocC >=2:
+            self.type = 'delete connection'
+            return
+        
         if self.type !='delete element':
             for i in self.helpCoord:                    
                 if i[2] == 'X':
@@ -51,7 +66,8 @@ class CGestureManager(object):
         if len(con)>0:        
             for i in con:
                 self.dic.append([i,''])
-        ces = os.getcwd()+'\\share\\addons\\gestures\\plugin\\gestureLogic\\gestures\\'
+                
+        ces = os.path.join(os.path.dirname(__file__), "gestures")+"//"                                                
         for path in os.listdir(ces):
             if path[0]!= '.':
                 tree = etree.parse(ces+path)
@@ -65,20 +81,23 @@ class CGestureManager(object):
     def Recognize(self):
         self.FindOutGestureType()
         self.CreateCoordinates()
-        print self.dic                
+       # print self.dic                
         a = self.alg.Recognition(self.type)
+        if a[0] == 'delete element':
+            return a        
+        if a[0] == 'delete connection':
+            a.append(self.coordinatesC[0])
+            return a
         if a[0] == 'element':
             bool = False
             for i in self.dic:
                 if i[1]==a[1]:
                     bool = True                    
                     a.append(('Element',i[0]))
-                    print a
                     return a
             if bool == False:
                 del a[:]
                 a.append('error')
-                print a
                 return a            
         if a[0] == 'connection':
             bool = False
@@ -86,14 +105,12 @@ class CGestureManager(object):
                 if i[1]==a[1]:
                     bool = True                    
                     a.append(('Connection',i[0]))
-                    print a
                     return a
             if bool == False:
                 del a[:]
                 a.append('error')
-                print a
-                return a                
-        a.append('error')   
+                return a
+        del a[:]                 
+        a.append('error')
         return a
-        #return self.alg.Recognition(self.type)
     
