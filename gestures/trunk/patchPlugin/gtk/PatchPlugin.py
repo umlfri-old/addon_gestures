@@ -9,13 +9,15 @@ from lib.Exceptions.UserException import *
 
 from lib.Elements import CElementObject
 
-
+from lib.Addons.Plugin.Interface.decorators import *
 
 import os
 import time
 
 from lib.Drawing.Canvas import CGtkCanvas, CSvgCanvas, CCairoCanvas, CExportCanvas
 from lib.Drawing import Element
+
+from lib.consts import BUFFER_SIZE, SCALE_MIN, SCALE_MAX, SCALE_INCREASE
 
 
 class CPatchPlugin():
@@ -34,6 +36,7 @@ class CPatchPlugin():
         self.color = '#00FF00'         
         self.size = 3 
         self.poz = ()
+        self.selectedObject = False 
         #minimalna dlzka ciary
         self.minimumLength = 20                                                                             
                                   
@@ -52,6 +55,7 @@ class CPatchPlugin():
         #self.gc =  self.drawing_area.window.new_gc(foreground = gtk.gdk.Color(#00FF00))        
         pass
 
+    @mainthread   
     def GestureMode(self,mode):
         print mode        
         if mode == True:                                                        
@@ -69,7 +73,8 @@ class CPatchPlugin():
         ElementObject = CElementObject(ElementType)
         newElement = CElement(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, ElementObject)
         newElement.SetPosition(self.poz)
-        self.__app.GetWindow('frmMain').picDrawingArea.emit('add-element', ElementObject, self.__app.GetWindow('frmMain').picDrawingArea.Diagram, None)                      
+        self.__app.GetWindow('frmMain').picDrawingArea.emit('add-element', ElementObject, self.__app.GetWindow('frmMain').picDrawingArea.Diagram, None)
+                              
         self.Repaint()            
         
     def AddConnection(self,variables):
@@ -92,24 +97,26 @@ class CPatchPlugin():
         except ConnectionRestrictionError:
             self.Repaint()        
             self.__app.GetWindow('frmMain').picDrawingArea.emit('run-dialog', 'warning', _('Invalid connection'))
-                            
+              
+    @mainthread                               
     def GestureRecognize(self,result):
-        print "ROZOZNAJ"
         if result[0] == 'error':
-            print "Error"
+            self.prebliknutie()
             return         
         if result[0] == 'from left to right':
-            print "A"
-            #self.__app.GetWindow('frmMain').nbTabs.NextTab()        
+            self.__app.GetWindow('frmMain').nbTabs.NextTab()        
             return
         if result[0] == 'from right to left':
-            print "B"
-            #self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
+            self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
             return
         if result[0] == 'from up to down':
-            print "A"
+            self.__app.GetWindow('frmMain').picDrawingArea.IncScale(SCALE_INCREASE)
+            self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
+            return            
         if result[0] == 'from down to up':
-            print "A"
+            self.__app.GetWindow('frmMain').picDrawingArea.IncScale(-SCALE_INCREASE)
+            self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
+            return
         if result[0] == 'element':
             self.AddElement(result[2][1])
             return                                             
@@ -132,7 +139,7 @@ class CPatchPlugin():
             self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
             print 'd'            
             return
-                                                                                                                          
+                                                                                                                                  
     def GestureSettings(self,color,size):
         print color
         print size
@@ -145,14 +152,10 @@ class CPatchPlugin():
         self.__app.GetWindow('frmMain').nbTabs.button_clicked.disable()
         self.__handler = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('button-press-event', self.__clicked)        
         self.__handler2 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('motion-notify-event', self.__motion)
-        self.__handler3 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('button-release-event', self.__released)                
+        self.__handler3 = self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.connect('button-release-event', self.__released)
+        self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
+        self.__app.GetWindow('frmMain').tbToolBox.Hide()                                                        
         self.__app.GetWindow('frmMain').picDrawingArea.Paint = self.Repaint
-        #print "pes"
-        #self.__app.GetWindow('frmMain').tbToolBox.Hide()                    
-        
-        #self.DiagramType = self.__app.GetProject().GetMetamodel().GetDiagramFactory().GetDiagram(DiagramId) 
-        #self.__app.GetWindow('frmMain').tbToolBox.SetVisible(False) 
-            
                                                     
     def GesturesOff(self):
         self.__app.GetWindow('frmMain').picDrawingArea.on_picEventBox_button_press_event.enable()
@@ -162,9 +165,10 @@ class CPatchPlugin():
         self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler)
         self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler2)
         self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler3)
+        self.__app.GetWindow('frmMain').tbToolBox.Show()                                    
         del self.pixels[:]  
         self.Repaint()
-        self.__app.GetWindow('frmMain').picDrawingArea.Paint = self.oldPaint        
+        self.__app.GetWindow('frmMain').picDrawingArea.Paint = self.oldPaint
                                 
     def Stop(self):
         print 'Example patch plugin stopped'        
@@ -174,8 +178,17 @@ class CPatchPlugin():
         if self.__handler2 is not None:
             self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler2)
             self.__handler2 = None
+        if self.__handler3 is not None:
+            self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler3)
+            self.__handler3 = None
                                 
     def DrawBrush(self,widget, x, y):
+        if self.selectedObject == True:
+            self.selectedObject = False
+            self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
+            self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),False)                    
+            self.Repaint()
+            
         self.counter = self.counter+1
         self.CreateGraphicContext()
         pos = (x,y)        
@@ -220,14 +233,28 @@ class CPatchPlugin():
             if state & gtk.gdk.BUTTON1_MASK:
                 self.DrawBrush(widget, event.x, event.y)
                         
-    def __clicked(self, widget, event):
+    def __clicked(self, widget, event):                    
         if event.button == 1:
+            pos = (event.x,event.y)
+            itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
+                      self.__app.GetWindow('frmMain').picDrawingArea.canvas,pos)            
+            if ( ((isinstance(itemSel,CElement)) or (isinstance(itemSel,CConnection))) and 
+                (len(self.pixels)==0)):
+                    self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
+                    print itemSel            
+                    self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
+                    print "Pejko"
+                    self.selectedObject = True
+                    self.Repaint()
+                    print list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected())
+                    self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)                    
+        else:
+            self.DrawBrush(widget, event.x, event.y)    
+        
             #if self.init == False:
             #    self.init = True
            #self.CreateGraphicContext()
-                #self.__app.GetWindow('frmMain').tbToolBox.Hide()
-           self.DrawBrush(widget, event.x, event.y)    
-        
+                #self.__app.GetWindow('frmMain').tbToolBox.Hide()        
         if event.button == 3:
             #self.__app.GetWindow('frmMain').nbTabs.NextTab() 
             if len(self.pixels)>=20:
@@ -277,6 +304,9 @@ class CPatchPlugin():
     def __released(self,widget,event):            
         #ak sa jedna o gesto spojenia, musi byt zlozene z dvoch tahov, pri pusteni mysi sa nastavi priznak      
         if event.button == 1:
+            if self.selectedObject == True:
+                #self.selectedObject = False
+                return
             if self.counter<self.minimumLength:
             #prebliknutie pri kratkom geste
                 self.prebliknutie()

@@ -1,14 +1,11 @@
 from lib.Addons.Plugin.Client.Interface import CInterface
-from lib.Addons.Plugin.Interface.decorators import *
 from lib.Exceptions import *
 
 from GestureGUI import CGestureGUI
 from gestureLogic.GestureManager import CGestureManager
 
-
 import os.path
 import random
-
 
 class Plugin(object):
     def __init__(self,interface):
@@ -39,11 +36,10 @@ class Plugin(object):
             pass                
         self.ada.AddNotification('gesture-invocated',self.GestureInvocate)
                         
-    @mainthread                        
     def ChangeGestureMode(self,parameter):                                            
         if (self.gestureButton.GetActive() == True):
             self.ada.Notify('gestureModeStarted',True)
-            self.gestureButton.SetLabel('Deactivate')   
+            self.gestureButton.SetLabel('Deactivate')
         else:
             self.ada.Notify('gestureModeStarted',False)
             self.gestureButton.SetLabel('Activate')

@@ -25,7 +25,7 @@ class CGestureGUI(gobject.GObject):
     def Main(self):
         self.setOpen(True)        
         self.window.show()
-        self.window.grab_focus()
+        #self.window.grab_focus()
         
     def getColor(self):
         return self.color
