@@ -175,6 +175,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
             #ak sa jedna o systemove gesto - t.j. len  pohyb jednym smerom
             if res!= "direction error":                
                 result.append(res)
+                print "KOKO"
                 return result
             else:
                 self.FillBox()                

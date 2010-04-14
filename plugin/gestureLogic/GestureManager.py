@@ -109,8 +109,8 @@ class CGestureManager(object):
             if bool == False:
                 del a[:]
                 a.append('error')
-                return a
-        del a[:]                 
-        a.append('error')
+                return a            
+        #del a[:]                 
+        #a.append('error')
         return a
     
