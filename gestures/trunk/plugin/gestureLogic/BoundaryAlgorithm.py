@@ -163,7 +163,12 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
         if type == 'delete element':
             result.append('delete element')
             result.append(self.coordinates[0])
-            return result                
+            return result                   
+        if type == 'delete connection':
+            result.append('delete connection')
+            #result.append(self.coordinates[0])
+            #print self.coordinates[0]            
+            return result                        
         if type == 'element or system':
             self.Boundaries()
             res = self.SystemGesture()

@@ -2,6 +2,7 @@ from lib.Depend.gtk2 import gtk
 from lib.Depend.gtk2 import gobject
 
 import os
+import os.path
 
 class CGestureGUI(gobject.GObject):
     __gsignals__ = {
@@ -9,7 +10,7 @@ class CGestureGUI(gobject.GObject):
             
     def __init__(self):
         gobject.GObject.__init__(self)
-        self.glade = os.getcwd()+"\\share\\addons\\gestures\\plugin\\gui\\gestureSettings.glade"        
+        self.glade = os.path.join(os.path.dirname(__file__), "gui", "gestureSettings.glade")        
         self.wTree = gtk.glade.XML(self.glade)
         self.open = False         
         self.window = self.wTree.get_widget("frmGestureOptions")
