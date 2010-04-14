@@ -73,8 +73,22 @@ class CPatchPlugin():
         ElementObject = CElementObject(ElementType)
         newElement = CElement(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, ElementObject)
         newElement.SetPosition(self.poz)
+        self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
         self.__app.GetWindow('frmMain').picDrawingArea.emit('add-element', ElementObject, self.__app.GetWindow('frmMain').picDrawingArea.Diagram, None)
-                              
+#        minzorder = 9999999
+#            parentElement = None
+#            for el in self.Diagram.GetSelectedElements(True):
+#                pos1, pos2 = el.GetSquare(self.canvas)
+#                zorder = self.Diagram.GetElementZOrder(el)
+#                if newElement.AreYouInRange(self.canvas, pos1, pos2, True):
+#                    for el2 in self.Diagram.GetElementsInRange(self.canvas, pos1, pos2, True):
+#                        if self.Diagram.GetElementZOrder(el2) < minzorder:        #get element with minimal zorder
+#                            minzorder = self.Diagram.GetElementZOrder(el2)
+#                            parentElement = el2.GetObject()
+        
+
+        self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(newElement)
+        self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)                              
         self.Repaint()            
         
     def AddConnection(self,variables):
@@ -93,6 +107,9 @@ class CPatchPlugin():
             points = variables[2]
             obj = CConnectionObject(ConnectionType, source.GetObject(), destination.GetObject())
             x = CConnection(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, obj, source, destination, points)
+            self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(x)
+            self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)
+
             self.Repaint()
         except ConnectionRestrictionError:
             self.Repaint()        
@@ -235,21 +252,23 @@ class CPatchPlugin():
                         
     def __clicked(self, widget, event):                    
         if event.button == 1:
+            if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()>0:
+                self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
+            
             pos = (event.x,event.y)
             itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
                       self.__app.GetWindow('frmMain').picDrawingArea.canvas,pos)            
             if ( ((isinstance(itemSel,CElement)) or (isinstance(itemSel,CConnection))) and 
                 (len(self.pixels)==0)):
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
-                    print itemSel            
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
                     print "Pejko"
+                    print self.pixels
                     self.selectedObject = True
                     self.Repaint()
-                    print list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected())
                     self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)                    
-        else:
-            self.DrawBrush(widget, event.x, event.y)    
+            else:
+                self.DrawBrush(widget, event.x, event.y)    
         
             #if self.init == False:
             #    self.init = True
@@ -260,6 +279,7 @@ class CPatchPlugin():
             if len(self.pixels)>=20:
                 #print "PRAVE"
                 #print self.pixels
+                
                 self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
                 self.poz = (event.x,event.y)
                 del self.pixels[:]
