@@ -21,6 +21,9 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
         #odchylka ciary
         self.lineDeviation = 20
         self.connectionDistance = 40
+        self.elementRecognitionDeviation = 1
+        self.connectionRecognitionDeviation = 1        
+        self.deleteDeviation = 6
 
     #Vytvorenie prazdnej mriezky
     def BoxInitialization(self):
@@ -124,6 +127,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
     def ElementComparation(self):
         zh = self.boxSize*self.boxSize;      
         ind = 0;
+        odch = 0
         for x in range(len(self.patternGestures.GetGestures())):
             if self.patternGestures.GetGesture(x).gestureType == 'element':
                 for k in range(len(self.patternGestures.GetGesture(x).description)):                            
@@ -132,15 +136,28 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                         for j in range(self.boxSize):
                             if self.box[i][j] == self.patternGestures.GetGesture(x).description[k].gestureBox[i][j]:
                                 a = a+1
-                if a==zh:
-                    ind = x
-                    zh = a
-                    return self.patternGestures.GetGesture(x).GetName()
+                    if a==zh:
+                        ind = x
+                        zh = a
+                        return self.patternGestures.GetGesture(x).GetName()
+                    if a>odch:
+                        odch = a
+                        ind = x
+        if zh-odch<=self.elementRecognitionDeviation:
+            return self.patternGestures.GetGesture(x).GetName()
+        a = 0
+        for i in range(self.boxSize):
+            for j in range(self.boxSize):
+                if self.box[i][j] == 1:
+                    a = a+1
+        if a+self.deleteDeviation >=zh:
+            return "delete element"
         return "unknown"
     
     def ConnectionComparation(self):
         zh = self.boxSize*self.boxSize;      
         ind = 0;
+        odch = 0
         for x in range(len(self.patternGestures.GetGestures())):
             if self.patternGestures.GetGesture(x).gestureType == 'connection':
                 print "AAA"
@@ -154,52 +171,58 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                     if a==zh:
                         ind = x
                         zh = a
-                        return self.patternGestures.GetGesture(x).GetName()
+                        return self.patternGestures.GetGesture(x).GetName()                    
+                    if a>odch:
+                        odch = a
+                        ind = x
+        if zh-odch<=self.connectionRecognitionDeviation:
+            return self.patternGestures.GetGesture(x).GetName()
         return "unknown"
     
-    #algoritmus, ktory vrati rozoznane gesto, type je typ gesta, ci sa jedna o spojenie, element... 
+    #algoritmus, ktory vrati rozoznane gesto, type je typ gesta, ci sa jedna o spojenie, element...     
     def Recognition(self,type):
-        result = []
-        if type == 'delete element':
-            result.append('delete element')
-            result.append(self.coordinates[0])
-            return result                   
-        if type == 'delete connection':
-            result.append('delete connection')
-            #result.append(self.coordinates[0])
-            #print self.coordinates[0]            
-            return result                        
-        if type == 'element or system':
+        result = []        
+        if type[0] == 'element':
             self.Boundaries()
             res = self.SystemGesture()
-            #ak sa jedna o systemove gesto - t.j. len  pohyb jednym smerom
-            if res!= "direction error":                
+            if res!= "direction error":
+                result.append('system')                
                 result.append(res)
-                print "KOKO"
                 return result
             else:
                 self.FillBox()                
                 self.MakeBinaryBox()
-                print self.box
+                print self.box[0]
+                print self.box[1]
+                print self.box[2]
+                print self.box[3]
+                print self.box[4]                                
                 ele = self.ElementComparation()
-                if ele !='unknown':
-                    result.append('element')
-                    result.append(ele) 
+                print ele
+                if ele != 'unknown':
+                    if ele == 'delete element':                        
+                        result.append('delete element')
+                        result.append(self.coordinates[0])            
+                        return result
+                    else:          
+                        result.append('element')
+                        result.append(ele)
+                        return result
+                else:               
+                    result.append('unknown')
                     return result
-        if type == 'connection':
+        if type[0] == 'connection':
             bendPoints = []
-            print self.coordinates
             for i in self.coordinates:
                 if i == ('x','x'):
                     poz = self.coordinates.index(i)                    
             for i in range(poz):
                 if self.coordinates[i] == ('p','p'):
-                    bendPoints.append(self.coordinates[i-1])
-            print bendPoints
+                    bendPoints.append(self.coordinates[i-1])            
             #ak sa jedna o ciste spojenie                                
             if self.coordinates[len(self.coordinates)-1][0]=='x':
                 self.MakeBinaryBox()                
-                ele = self.ConnectionComparation()
+                ele = self.ConnectionComparation()                
                 if ele!='unknown':
                     result.append('connection')
                     result.append(ele)
@@ -234,7 +257,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                         result.append(self.coordinates[poz-1])                                                                                                                                                                                                                    
                     else:
                         del result[:]
-                        result.append("error")
+                        result.append("unknown")
                         return result                                
                 if prv < posl:
                     if prv <= self.connectionDistance:
@@ -242,7 +265,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                         result.append(self.coordinates[0])                                                                                                                                                                                                                                            
                     else:
                         del result[:]
-                        result.append("error")
+                        result.append("unknown")
                         return result
                 new = []
                 for i in self.coordinates[poz+1:len(self.coordinates)+1]:
@@ -255,12 +278,6 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                 self.MakeBinaryBox()
                 ele = self.ConnectionComparation()
                 if ele!='unknown':
-                    result.insert(1, ele)
-                print self.box
-                print "SEX"
-                print result
-                return result   
-        del result[:]                                 
-        result.append("error")
-        return result
-        
+                    result.insert(1, ele)                                                                             
+                return result
+      

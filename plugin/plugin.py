@@ -51,7 +51,6 @@ class Plugin(object):
                 return i
                 
     def GestureInvocate(self,coord):
-        print "ZACIATOK"
         ele = []
         con = []
         dia = self.GetCurrentDiagram()
@@ -65,9 +64,6 @@ class Plugin(object):
         self.manager.alg.DeleteCoordinates()                
         self.manager.alg.ClearBox()
         self.manager.DeleteCoordinates()
-        print self.manager.alg.box
-        print self.manager.coord
-        print self.manager.alg.coordinates           
         pass
     
     def OpenGestureSettings(self,widget):

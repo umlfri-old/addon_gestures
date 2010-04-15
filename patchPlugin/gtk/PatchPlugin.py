@@ -1,6 +1,3 @@
-#from __future__ import absolute_import
-#from ...gestureLogic.GestureManager import CGestureManager
-
 from lib.Depend.gtk2 import gtk
 from lib.Depend.gtk2 import gobject
 from lib.Connections import CConnectionObject
@@ -19,7 +16,6 @@ from lib.Drawing import Element
 
 from lib.consts import BUFFER_SIZE, SCALE_MIN, SCALE_MAX, SCALE_INCREASE
 
-
 class CPatchPlugin():
 
     def __init__(self, app):     
@@ -36,7 +32,8 @@ class CPatchPlugin():
         self.color = '#00FF00'         
         self.size = 3 
         self.poz = ()
-        self.selectedObject = False 
+        self.selectedObject = False
+        self.inObject = True 
         #minimalna dlzka ciary
         self.minimumLength = 20                                                                             
                                   
@@ -60,12 +57,7 @@ class CPatchPlugin():
         print mode        
         if mode == True:                                                        
             self.GesturesOn()
-            #print
-            #if self.init == False:
-            #self.__app.GetWindow('frmMain').tbToolBox.Hide()
-            #self.__app.GetWindow('frmMain').tbToolBox.Hide() 
         else:
-            print "B"
             self.GesturesOff()
             
     def AddElement(self,elementName):
@@ -74,19 +66,7 @@ class CPatchPlugin():
         newElement = CElement(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, ElementObject)
         newElement.SetPosition(self.poz)
         self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
-        self.__app.GetWindow('frmMain').picDrawingArea.emit('add-element', ElementObject, self.__app.GetWindow('frmMain').picDrawingArea.Diagram, None)
-#        minzorder = 9999999
-#            parentElement = None
-#            for el in self.Diagram.GetSelectedElements(True):
-#                pos1, pos2 = el.GetSquare(self.canvas)
-#                zorder = self.Diagram.GetElementZOrder(el)
-#                if newElement.AreYouInRange(self.canvas, pos1, pos2, True):
-#                    for el2 in self.Diagram.GetElementsInRange(self.canvas, pos1, pos2, True):
-#                        if self.Diagram.GetElementZOrder(el2) < minzorder:        #get element with minimal zorder
-#                            minzorder = self.Diagram.GetElementZOrder(el2)
-#                            parentElement = el2.GetObject()
-        
-
+        self.__app.GetWindow('frmMain').picDrawingArea.emit('add-element', ElementObject, self.__app.GetWindow('frmMain').picDrawingArea.Diagram, None)        
         self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(newElement)
         self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)                              
         self.Repaint()            
@@ -96,7 +76,7 @@ class CPatchPlugin():
                         self.__app.GetWindow('frmMain').picDrawingArea.canvas, variables[3])
         
         destination = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
-                        self.__app.GetWindow('frmMain').picDrawingArea.canvas, variables[4])        
+                        self.__app.GetWindow('frmMain').picDrawingArea.canvas, variables[4])                
         if (source.GetObject().GetType().GetId()=='Note' or 
            destination.GetObject().GetType().GetId()=='Note'):
             type = 'Note Link'
@@ -117,23 +97,25 @@ class CPatchPlugin():
               
     @mainthread                               
     def GestureRecognize(self,result):
-        if result[0] == 'error':
+        self.inObject = True
+        if result[0] == 'unknown':
             self.prebliknutie()
-            return         
-        if result[0] == 'from left to right':
-            self.__app.GetWindow('frmMain').nbTabs.NextTab()        
-            return
-        if result[0] == 'from right to left':
-            self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
-            return
-        if result[0] == 'from up to down':
-            self.__app.GetWindow('frmMain').picDrawingArea.IncScale(SCALE_INCREASE)
-            self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
-            return            
-        if result[0] == 'from down to up':
-            self.__app.GetWindow('frmMain').picDrawingArea.IncScale(-SCALE_INCREASE)
-            self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
-            return
+            return   
+        if result[0] == 'system':
+            if result[1] == 'from left to right':
+                self.__app.GetWindow('frmMain').nbTabs.NextTab()        
+                return
+            if result[1] == 'from right to left':
+                self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
+                return
+            if result[1] == 'from up to down':
+                self.__app.GetWindow('frmMain').picDrawingArea.IncScale(SCALE_INCREASE)
+                self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
+                return            
+            if result[1] == 'from down to up':
+                self.__app.GetWindow('frmMain').picDrawingArea.IncScale(-SCALE_INCREASE)
+                self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
+                return
         if result[0] == 'element':
             self.AddElement(result[2][1])
             return                                             
@@ -205,10 +187,23 @@ class CPatchPlugin():
             self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
             self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),False)                    
             self.Repaint()
-            
+
         self.counter = self.counter+1
         self.CreateGraphicContext()
+        self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)            
+
         pos = (x,y)        
+        if len(self.pixels)>0 and self.inObject == True:
+            if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+            self.__app.GetWindow('frmMain').picDrawingArea.canvas, (self.pixels[0][0],self.pixels[0][1])),CElement):            
+                if (self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                self.__app.GetWindow('frmMain').picDrawingArea.canvas, (self.pixels[0][0],self.pixels[0][1])) 
+                != self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
+                self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)):
+                    self.inObject = False
+                    self.pixels.append([x,y,'V'])
+                    return
+        
         if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
            self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos) == None:
             self.pixels.append([x,y,'N'])
@@ -219,7 +214,6 @@ class CPatchPlugin():
             if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
                self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos),CConnection):
                 self.pixels.append([x,y,'AC'])                                                
-        self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)
         
     def prebliknutie(self):
         x, y, width, height = self.drawing_area.get_allocation()
@@ -262,8 +256,7 @@ class CPatchPlugin():
                 (len(self.pixels)==0)):
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
-                    print "Pejko"
-                    print self.pixels
+                    #print self.pixels
                     self.selectedObject = True
                     self.Repaint()
                     self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)                    
@@ -278,36 +271,13 @@ class CPatchPlugin():
             #self.__app.GetWindow('frmMain').nbTabs.NextTab() 
             if len(self.pixels)>=20:
                 #print "PRAVE"
-                #print self.pixels
+                print self.pixels
                 
                 self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
                 self.poz = (event.x,event.y)
                 del self.pixels[:]
                 
-                #ConnectionType = self.__app.GetProject().GetMetamodel().GetConnectionFactory().GetConnection('Association')
-                #points = []
-                #points.append((self.pixels[0][0],self.pixels[0][1]))
-                #points.append((self.pixels[len(self.pixels)-1][0],self.pixels[len(self.pixels)-1][1]))
-                
-                #source = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
-                #        self.__app.GetWindow('frmMain').picDrawingArea.canvas, points[0])
-                
-                #destination = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
-                #        self.__app.GetWindow('frmMain').picDrawingArea.canvas, points[1])
-                
-                #print ConnectionType
-                #print points
-                #print source
-                #print destination
-          
-                #(type, points, source), destination = self.__NewConnection, itemSel
-                #obj = CConnectionObject(ConnectionType, source.GetObject(), destination.GetObject())
-                #x = CConnection(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, obj, source, destination, points[1:])
-                
-                
-                
-                
-                #self.__app.GetWindow('frmMain').picDrawingArea.picDrawingArea.window.draw_lines(
+             #self.__app.GetWindow('frmMain').picDrawingArea.picDrawingArea.window.draw_lines(
                 #                            self.DragGC, self.__oldNewConnection)
                 #self.__app.GetWindow('frmMain').picDrawingArea.Pridaj(toolBtnSel, event)
             #self.prebliknutie()
