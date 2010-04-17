@@ -55,7 +55,6 @@ class CGestureManager(object):
     def CreateCoordinates(self):
         for i in self.helpCoord:
             self.coord.append((i[0],i[1]))
-        print self.coord
         self.alg.SetCoordinates(self.coord)        
     
     def DeleteCoordinates(self):
