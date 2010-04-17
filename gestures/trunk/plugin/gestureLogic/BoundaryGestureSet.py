@@ -13,7 +13,7 @@ class CBoundaryGestureSet(CGestureSet):
         #vzorove gesta        
         self.gestures = []
         self.directory = "gestureDefinitions"
-        self.loadGesturesFromDirectory()
+        #self.loadGesturesFromDirectory()
         
     #nacita gesta daneho algoritmu do pamate
     def loadGesturesFromDirectory(self):      
@@ -28,6 +28,7 @@ class CBoundaryGestureSet(CGestureSet):
                 
     def loadGesturesFromMetamodel(self,xmlFiles):
         for j in xmlFiles:
+            print "CISA"
             a = CGesture(self.id,j)
             a.ParseXMLFromString(j)
             for i in range(len(a.description)):

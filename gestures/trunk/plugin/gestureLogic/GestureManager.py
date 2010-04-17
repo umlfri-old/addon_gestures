@@ -61,6 +61,17 @@ class CGestureManager(object):
         self.helpCoord = []
         self.coord = []        
         
+    def CreateDic(self,paStr):            
+        del self.dic[:]
+        if paStr == "":
+            return
+        if len(paStr[0])>0:
+            for i in range(len(paStr[0])):
+                self.dic.append([paStr[0][i].get('objectId'),paStr[0][i].get('gestureName')])
+        if len(paStr[1])>0:
+            for i in range(len(paStr[1])):
+                self.dic.append([paStr[1][i].get('objectId'),paStr[1][i].get('gestureName')])                                                            
+        
     def CreateDictionary(self,ele,con):
         del self.dic[:]
         if len(ele)>0:        
