@@ -19,7 +19,7 @@ class CGesture(object):
         #popisy daneho gesta
         self.description = [] 
         #nacitaj udaje z xml suboru
-        self.ParseXMLFromFile(self.xmlFile)
+        #self.ParseXMLFromFile(self.xmlFile)
         #self.ParseXMLFromString(path)
               
     #Popise gesto do vytvoreneho popisu
