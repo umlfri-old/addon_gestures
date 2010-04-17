@@ -32,25 +32,23 @@ class CPatchPlugin():
         self.color = '#00FF00'         
         self.size = 3 
         self.poz = ()
-        self.selectedObject = False
-        self.inObject = True 
+        self.inObject = True
+        self.selectedObject = False 
         #minimalna dlzka ciary
-        self.minimumLength = 20                                                                             
+        self.minimumLength = 10                                                                             
                                   
     def Start(self):
         print 'Example patch plugin started'
         self.__app.GetPluginAdapter().AddNotification('gestureModeStarted',self.GestureMode)
-        self.__app.GetPluginAdapter().AddNotification('gesture-recognition',self.GestureRecognize)
-        
-        #self.__app.GetPluginAdapter().AddNotification('gestureModeStarted',self.GestureSettings)
+        self.__app.GetPluginAdapter().AddNotification('gesture-recognition',self.GestureRecognize)        
+        self.__app.GetPluginAdapter().AddNotification('changeGestureSettings',self.GestureSettings)
         
     def CanStop(self):
         return True
     
     def CreateGraphicContext(self):
-        self.gc =  self.drawing_area.window.new_gc(foreground = gtk.gdk.Color(self.color))
-        #self.gc =  self.drawing_area.window.new_gc(foreground = gtk.gdk.Color(#00FF00))        
-        pass
+        self.gc =  self.drawing_area.window.new_gc()        
+        #self.gc.foreground = gtk.gdk.Color(self.color)        
 
     @mainthread   
     def GestureMode(self,mode):
@@ -89,7 +87,6 @@ class CPatchPlugin():
             x = CConnection(self.__app.GetWindow('frmMain').picDrawingArea.Diagram, obj, source, destination, points)
             self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(x)
             self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)
-
             self.Repaint()
         except ConnectionRestrictionError:
             self.Repaint()        
@@ -98,6 +95,7 @@ class CPatchPlugin():
     @mainthread                               
     def GestureRecognize(self,result):
         self.inObject = True
+        self.ClearArea()
         if result[0] == 'unknown':
             self.prebliknutie()
             return   
@@ -130,19 +128,18 @@ class CPatchPlugin():
             self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
             return
         if result[0] == 'delete connection':
-            print 'd'
             pos = (result[1][0],result[1][1])
             itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
             self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)
             self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
             self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
-            print 'd'            
             return
-                                                                                                                                  
-    def GestureSettings(self,color,size):
-        print color
-        print size
-        print "ZMENA"
+    
+    def GestureSettings(self,size,color):        
+        self.size = size
+        self.color = color
+        self.gc.foreground = gtk.gdk.Color(self.color)        
+        self.ClearArea()
                 
     def GesturesOn(self):
         self.__app.GetWindow('frmMain').picDrawingArea.on_picEventBox_button_press_event.disable()
@@ -185,13 +182,12 @@ class CPatchPlugin():
         if self.selectedObject == True:
             self.selectedObject = False
             self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
-            self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),False)                    
+            #self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),False)                    
             self.Repaint()
 
-        self.counter = self.counter+1
-        self.CreateGraphicContext()
-        self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)            
-
+        self.counter = self.counter+1        
+        self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)
+        
         pos = (x,y)        
         if len(self.pixels)>0 and self.inObject == True:
             if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
@@ -218,33 +214,29 @@ class CPatchPlugin():
     def prebliknutie(self):
         x, y, width, height = self.drawing_area.get_allocation()
         self.drawing_area.window.draw_rectangle(self.gc,True,x, y, width,height)                        
-        self.gc.set_foreground(gtk.gdk.Color('#ffffffffffff'))
-        time.sleep(0.15)
-        self.gc.set_foreground(gtk.gdk.Color(self.color))        
-        self.Repaint()
+        time.sleep(0.05)
+        self.ClearArea()
                                                         
     def Repaint(self,changed = True):
-        self.oldPaint()
+        self.oldPaint()        
         if len(self.pixels)>1:       
             for i in self.pixels[1:len(self.pixels)]:
-                self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],3,3)                        
-                
-    def ClearPixels(self):
-        if len(self.pixels)>1:
-            actualColor = self.gc.foreground
-            print actualColor 
-            self.gc.set_foreground(gtk.gdk.Color('#FFFFFF'))
-            for i in self.pixels[1:len(self.pixels)]:
-                self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],self.size,self.size)
-            self.gc.foreground = self.color                
+                self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],3,3)
+            
+    def ClearArea(self):
         del self.pixels[:]
-                       
+        self.Repaint()
+
     def __motion(self,widget,event):
             state = event.state
             if state & gtk.gdk.BUTTON1_MASK:
                 self.DrawBrush(widget, event.x, event.y)
                         
-    def __clicked(self, widget, event):                    
+    def __clicked(self, widget, event):
+        if self.init == False:
+            self.init = True
+            self.CreateGraphicContext()
+                               
         if event.button == 1:
             if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()>0:
                 self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
@@ -252,56 +244,30 @@ class CPatchPlugin():
             pos = (event.x,event.y)
             itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
                       self.__app.GetWindow('frmMain').picDrawingArea.canvas,pos)            
-            if ( ((isinstance(itemSel,CElement)) or (isinstance(itemSel,CConnection))) and 
+            if (((isinstance(itemSel,CElement)) or (isinstance(itemSel,CConnection))) and 
                 (len(self.pixels)==0)):
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
-                    #print self.pixels
                     self.selectedObject = True
                     self.Repaint()
                     self.__app.GetWindow('frmMain').picDrawingArea.emit('selected-item', list(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()),True)                    
             else:
-                self.DrawBrush(widget, event.x, event.y)    
-        
-            #if self.init == False:
-            #    self.init = True
-           #self.CreateGraphicContext()
-                #self.__app.GetWindow('frmMain').tbToolBox.Hide()        
+                self.DrawBrush(widget, event.x, event.y)
+                    
         if event.button == 3:
-            #self.__app.GetWindow('frmMain').nbTabs.NextTab() 
-            if len(self.pixels)>=20:
-                #print "PRAVE"
-                print self.pixels
-                
+            if len(self.pixels)>=self.minimumLength:
                 self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
                 self.poz = (event.x,event.y)
-                del self.pixels[:]
-                
-             #self.__app.GetWindow('frmMain').picDrawingArea.picDrawingArea.window.draw_lines(
-                #                            self.DragGC, self.__oldNewConnection)
-                #self.__app.GetWindow('frmMain').picDrawingArea.Pridaj(toolBtnSel, event)
-            #self.prebliknutie()
-        
-                self.Repaint()            
             else:
                 self.prebliknutie()
-            del self.pixels[:]
-            #toolBtnSel = ('Element','Object')
-            #self.__app.GetWindow('frmMain').picDrawingArea.Pridaj(toolBtnSel, event)
-            #self.prebliknutie()
         print 'You clicked at (%.0f, %0f) with button no. %d' % (event.x, event.y, event.button)
                     
     def __released(self,widget,event):            
         #ak sa jedna o gesto spojenia, musi byt zlozene z dvoch tahov, pri pusteni mysi sa nastavi priznak      
         if event.button == 1:
-            if self.selectedObject == True:
-                #self.selectedObject = False
-                return
             if self.counter<self.minimumLength:
             #prebliknutie pri kratkom geste
                 self.prebliknutie()
-                del self.pixels[:]
-                self.Repaint()
                 self.counter = 0
                 return
             #Pridanie priznaku spojenia            

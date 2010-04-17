@@ -19,22 +19,28 @@ class CGesture(object):
         #popisy daneho gesta
         self.description = [] 
         #nacitaj udaje z xml suboru
-        self.ParseXML(self.xmlFile)
+        self.ParseXMLFromFile(self.xmlFile)
+        #self.ParseXMLFromString(path)
               
     #Popise gesto do vytvoreneho popisu
     def FillDescription(self):
         if (self.algorithm == 1):
             for i in range(len(self.description)):
                 self.description[i].CreateGestureBox()
-        
+                
     #naplni atributy datami o geste parsovanim XML suboru
-    def ParseXML(self,xmlFile):
+    def ParseXMLFromFile(self,xmlFile):        
         tree = etree.parse(xmlFile)
-        root = tree.getroot()
+        self.ParseXML(tree.getroot())        
+
+    def ParseXMLFromString(self,paStr):
+        self.ParseXML(etree.fromstring(paStr))
+
+    def ParseXML(self,root):
         #parsovanie korenoveho elementu
         self.name = root.get("name")
-        self.gestureType = root.get("type")        
-        #parsovanie algoritmov       
+        self.gestureType = root.get("type")                            
+        #parsovanie algoritmov    
         for i in range(len(root)):
             if (root[i].get("name")=="Boundary Box Algorithm"):
                 for j in range(len(root[i])):
@@ -45,8 +51,7 @@ class CGesture(object):
                         coordinate.append(root[i][j][k].get("to"))
                         lines.append(coordinate)
                     des = CBoundaryDescription(1,lines)  
-                    self.description.append(des)
-        return None
-    
+                    self.description.append(des)    
+                
     def GetName(self):
         return self.name

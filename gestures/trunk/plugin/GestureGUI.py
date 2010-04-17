@@ -40,7 +40,7 @@ class CGestureGUI(gobject.GObject):
         self.on_frmGestureOptions_destroy(widget)
         
     def on_btnDefault_clicked(self,widget):
-        self.wTree.get_wet("sbpLineSize").set_value(3)
+        self.wTree.get_widget("sbpLineSize").set_value(3)
         self.wTree.get_widget("cbnLineColor").set_color(gtk.gdk.Color('#00FF00'))               
         
     def on_frmGestureOptions_destroy(self,widget):
