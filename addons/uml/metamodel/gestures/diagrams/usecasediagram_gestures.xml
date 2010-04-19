@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiagramType id="Use Case diagram">
+    <Elements>
+        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" />
+        <GestureRecognizer objectId="Package" gestureName="package" />
+        <GestureRecognizer objectId="UseCase" gestureName="rectangle" />
+        <GestureRecognizer objectId="Boundary" gestureName="horizontal" />
+        <GestureRecognizer objectId="Actor" gestureName="actor" />
+    </Elements>
+    <Connections>
+        <GestureRecognizer objectId="AssociationUseCase" gestureName="empty" />
+        <GestureRecognizer objectId="Include" gestureName="include" />
+        <GestureRecognizer objectId="Extend" gestureName="extend" />
+        <GestureRecognizer objectId="Generalization" gestureName="filledArrow" />        
+    </Connections>
+</DiagramType>

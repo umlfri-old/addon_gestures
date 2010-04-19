@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiagramType id="State diagram">
+    <Elements>
+        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" />
+        <GestureRecognizer objectId="Package" gestureName="package" />
+        <GestureRecognizer objectId="State" gestureName="rectangle" />
+        <GestureRecognizer objectId="VerticalSynchronization" gestureName="vertical" />
+        <GestureRecognizer objectId="HorizontalSynchronization" gestureName="horizontal" />
+        <GestureRecognizer objectId="StartState" gestureName="start" />
+        <GestureRecognizer objectId="EndState" gestureName="end" />
+        <GestureRecognizer objectId="Decision" gestureName="decision" />
+    </Elements>
+    <Connections>
+        <GestureRecognizer objectId="StateTransition" gestureName="empty" />        
+    </Connections>
+</DiagramType>

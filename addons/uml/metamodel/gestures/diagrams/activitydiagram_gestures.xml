@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiagramType id="Activity diagram">
+    <Elements>
+        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" />
+        <GestureRecognizer objectId="Package" gestureName="package" />
+        <GestureRecognizer objectId="Activity" gestureName="rectangle" />
+        <GestureRecognizer objectId="VerticalSynchronization" gestureName="vertical" />
+        <GestureRecognizer objectId="HorizontalSynchronization" gestureName="horizontal" />
+        <GestureRecognizer objectId="StartState" gestureName="start" />
+        <GestureRecognizer objectId="EndState" gestureName="end" />
+        <GestureRecognizer objectId="Decision" gestureName="decision" />
+        <GestureRecognizer objectId="Merge" gestureName="merge" />        
+    </Elements>
+    <Connections>
+        <GestureRecognizer objectId="Control Flow" gestureName="empty" />
+    </Connections>
+</DiagramType>

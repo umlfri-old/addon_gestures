@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiagramType id="Object diagram">
+    <Elements>
+        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" />
+        <GestureRecognizer objectId="Package" gestureName="package" />
+        <GestureRecognizer objectId="Object" gestureName="rectangleUpperLine" />        
+    </Elements>
+    <Connections>
+        <GestureRecognizer objectId="AssociationInstance" gestureName="empty" />
+    </Connections>
+</DiagramType>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DiagramType id="Class diagram">
+    <Elements>
+        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" />
+        <GestureRecognizer objectId="Package" gestureName="package" />
+        <GestureRecognizer objectId="Class" gestureName="rectangle" />
+        <GestureRecognizer objectId="Interface" gestureName="interface" />
+        <GestureRecognizer objectId="Object" gestureName="rectangleUpperLine" />        
+    </Elements>
+    <Connections>
+        <GestureRecognizer objectId="Generalization" gestureName="filledArrow" />
+        <GestureRecognizer objectId="Implementation" gestureName="filledDashedArrow" />
+        <GestureRecognizer objectId="Association" gestureName="empty" />
+        <GestureRecognizer objectId="Agregation" gestureName="rectangleConnection" />
+        <GestureRecognizer objectId="Compose" gestureName="rectangleMiddleLine" />        
+		<GestureRecognizer objectId="Dependency" gestureName="arrow" />
+    </Connections>
+</DiagramType>
