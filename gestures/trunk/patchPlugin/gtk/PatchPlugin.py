@@ -36,12 +36,22 @@ class CPatchPlugin():
         self.selectedObject = False 
         #minimalna dlzka ciary
         self.minimumLength = 10                                                                             
-                                  
+
     def Start(self):
         print 'Example patch plugin started'
         self.__app.GetPluginAdapter().AddNotification('gestureModeStarted',self.GestureMode)
         self.__app.GetPluginAdapter().AddNotification('gesture-recognition',self.GestureRecognize)        
         self.__app.GetPluginAdapter().AddNotification('changeGestureSettings',self.GestureSettings)
+        
+        if self.__app.GetPluginAdapter().GetProject()!=None:
+            self.__app.GetPluginAdapter().Notify('help-loaded',True)
+        else:
+            self.__app.GetPluginAdapter().Notify('help-loaded',False)
+            
+        change = True
+        
+        if change == True:
+            change = False
         
     def CanStop(self):
         return True
@@ -52,7 +62,6 @@ class CPatchPlugin():
 
     @mainthread   
     def GestureMode(self,mode):
-        print mode        
         if mode == True:                                                        
             self.GesturesOn()
         else:
@@ -96,6 +105,9 @@ class CPatchPlugin():
     def GestureRecognize(self,result):
         self.inObject = True
         self.ClearArea()
+        if len(result) == 0:
+            self.prebliknutie()
+            return                              
         if result[0] == 'unknown':
             self.prebliknutie()
             return   
@@ -152,6 +164,11 @@ class CPatchPlugin():
         self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
         self.__app.GetWindow('frmMain').tbToolBox.Hide()                                                        
         self.__app.GetWindow('frmMain').picDrawingArea.Paint = self.Repaint
+        
+        #pomocne handlery kvoli padaniu aplikacie pri nevymazani plochy
+        self.__handler4 = self.__app.GetWindow('frmMain').nbTabs.nbTabs.connect('switch-page', self.ClearTabs)
+        self.__handler5 = self.__app.GetWindow('frmMain').twProjectView.twProjectView.connect('button-press-event',self.ClearTree)
+        
                                                     
     def GesturesOff(self):
         self.__app.GetWindow('frmMain').picDrawingArea.on_picEventBox_button_press_event.enable()
@@ -161,6 +178,9 @@ class CPatchPlugin():
         self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler)
         self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler2)
         self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler3)
+        self.__app.GetWindow('frmMain').nbTabs.nbTabs.disconnect(self.__handler4)
+        self.__app.GetWindow('frmMain').twProjectView.twProjectView.disconnect(self.__handler5)
+
         self.__app.GetWindow('frmMain').tbToolBox.Show()                                    
         del self.pixels[:]  
         self.Repaint()
@@ -177,7 +197,19 @@ class CPatchPlugin():
         if self.__handler3 is not None:
             self.__app.GetWindow('frmMain').picDrawingArea.picEventBox.disconnect(self.__handler3)
             self.__handler3 = None
+        if self.__handler4 is not None:
+            self.__app.GetWindow('frmMain').nbTabs.nbTabs.disconnect(self.__handler4)
+            self.__handler4 = None
+        if self.__handler5 is not None:
+            self.__app.GetWindow('frmMain').twProjectView.twProjectView.disconnect(self.__handler5)
+            self.__handler5 = None
                                 
+    def ClearTabs(self,parA,parB,parC):
+        self.ClearArea()
+        
+    def ClearTree(self,parA,parB):
+        self.ClearArea()
+    
     def DrawBrush(self,widget, x, y):
         if self.selectedObject == True:
             self.selectedObject = False
@@ -219,9 +251,10 @@ class CPatchPlugin():
                                                         
     def Repaint(self,changed = True):
         self.oldPaint()        
-        if len(self.pixels)>1:       
-            for i in self.pixels[1:len(self.pixels)]:
-                self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],3,3)
+        if len(self.pixels)>1:
+            if self.drawing_area.window!=None:        
+                for i in self.pixels[1:len(self.pixels)]:
+                    self.drawing_area.window.draw_rectangle(self.gc, True, i[0], i[1],self.size,self.size)
             
     def ClearArea(self):
         del self.pixels[:]
@@ -260,7 +293,6 @@ class CPatchPlugin():
                 self.poz = (event.x,event.y)
             else:
                 self.prebliknutie()
-        print 'You clicked at (%.0f, %0f) with button no. %d' % (event.x, event.y, event.button)
                     
     def __released(self,widget,event):            
         #ak sa jedna o gesto spojenia, musi byt zlozene z dvoch tahov, pri pusteni mysi sa nastavi priznak      
