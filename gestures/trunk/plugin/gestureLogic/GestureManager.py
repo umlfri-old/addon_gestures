@@ -70,7 +70,8 @@ class CGestureManager(object):
                 self.dic.append([paStr[0][i].get('objectId'),paStr[0][i].get('gestureName')])
         if len(paStr[1])>0:
             for i in range(len(paStr[1])):
-                self.dic.append([paStr[1][i].get('objectId'),paStr[1][i].get('gestureName')])                                                            
+                self.dic.append([paStr[1][i].get('objectId'),paStr[1][i].get('gestureName')])
+        print self.dic                                                            
         
     def CreateDictionary(self,ele,con):
         del self.dic[:]

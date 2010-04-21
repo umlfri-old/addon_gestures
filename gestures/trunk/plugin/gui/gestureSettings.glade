@@ -18,7 +18,7 @@
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
+        <property name="spacing">11</property>
         <child>
           <widget class="GtkNotebook" id="nbkGestureOptions">
             <property name="visible">True</property>
@@ -86,6 +86,166 @@
           </widget>
           <packing>
             <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <widget class="GtkNotebook" id="notebook1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <child>
+              <widget class="GtkTable" id="table2">
+                <property name="visible">True</property>
+                <property name="n_rows">4</property>
+                <property name="n_columns">2</property>
+                <child>
+                  <widget class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Line  to left</property>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label2">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Line  to up</property>
+                  </widget>
+                  <packing>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label3">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Line  to right</property>
+                  </widget>
+                  <packing>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="label4">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Line  to down</property>
+                  </widget>
+                  <packing>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkComboBox" id="combobox1">
+                    <property name="visible">True</property>
+                    <property name="items" translatable="yes">Open project
+Save project
+Open options
+Export diagram
+About
+Website
+Next tab
+Previous tab
+Close tab
+Close all tabs
+Best fit
+Normal size
+Zoom in
+Zoom out</property>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkComboBox" id="combobox2">
+                    <property name="visible">True</property>
+                    <property name="items" translatable="yes">Open project
+Save project
+Open options
+Export diagram
+About
+Website
+Next tab
+Previous tab
+Close tab
+Close all tabs
+Best fit
+Normal size
+Zoom in
+Zoom out</property>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">1</property>
+                    <property name="bottom_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkComboBox" id="combobox3">
+                    <property name="visible">True</property>
+                    <property name="items" translatable="yes">Open project
+Save project
+Open options
+Export diagram
+About
+Website
+Next tab
+Previous tab
+Close tab
+Close all tabs
+Best fit
+Normal size
+Zoom in
+Zoom out</property>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">2</property>
+                    <property name="bottom_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkComboBox" id="combobox4">
+                    <property name="visible">True</property>
+                    <property name="items" translatable="yes">Open project
+Save project
+Open options
+Export diagram
+About
+Website
+Next tab
+Previous tab
+Close tab
+Close all tabs
+Best fit
+Normal size
+Zoom in
+Zoom out</property>
+                  </widget>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                    <property name="top_attach">3</property>
+                    <property name="bottom_attach">4</property>
+                  </packing>
+                </child>
+              </widget>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="lblGesturesEffect">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">General gestures effects </property>
+              </widget>
+              <packing>
+                <property name="tab_fill">False</property>
+                <property name="type">tab</property>
+              </packing>
+            </child>
+          </widget>
+          <packing>
+            <property name="position">3</property>
           </packing>
         </child>
         <child internal-child="action_area">
