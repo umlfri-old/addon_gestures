@@ -55,3 +55,7 @@ class CGesture(object):
                 
     def GetName(self):
         return self.name
+    
+    def GetDescriptions(self):
+        return self.description
+    
