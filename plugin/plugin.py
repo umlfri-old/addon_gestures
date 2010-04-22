@@ -58,8 +58,8 @@ class Plugin(object):
             self.gestureButton.SetLabel('Activate')
             
     def OpenHelp(self,widget):
-        if self.guiHelp.GetMetamodel()!=self.metamodel:            
-            self.LoadHelp()
+        #if self.guiHelp.GetMetamodel()!=self.metamodel:            
+        #    self.LoadHelp()
         self.guiHelp.ShowHelpDialog()
         
         #d = self.ada.GetProject().GetMetamodel().GetUri()
@@ -228,9 +228,6 @@ class Plugin(object):
         self.manager.DeleteCoordinates()
     
     def OpenGestureSettings(self,widget):
-        #if self.opened == False:
-        #    self.ada.GetGuiManager().DisplayWarning('Project was not loaded!')
-        #else:
         if self.guiSettings.getOpen() == False:
             self.guiSettings.Main()
             

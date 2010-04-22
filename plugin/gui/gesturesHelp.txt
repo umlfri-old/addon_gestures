@@ -1,0 +1,20 @@
+Welcome to help for gestures!
+
+Mouse gestures are useful modeling tool that can help you to manage your diagram with just a click of mouse.
+There are three types of mouse gestures in UML. FRI, the element gestures, the system gestures and the connection gestures.
+
+To activate gesture mode you must click on button activate. To deactivate gestures click on the same button which label is now deactivate.
+
+In gestures mode you are able to apply gesture, just hold down the left mouse button and move the mouse to form the gesture.
+You can also release the button and finish gesture with another move. Watch out for minimal move size.
+When you click right mouse button, the gesture will be executed automatically. If the gesture is not recognized, the screen blinks. 
+
+For element gestures the position of right button click indicates, where the element will be created.
+The connection gesture can be created simply by click inside one element, and moving to another element.
+If you want to have bend point release the mouse button and continue in creation with another move.
+If you want to have special connection, draw general connection, after that draw desired gesture near one of the element.
+
+To delete element or connection just scratch over the same place few times. 
+In submenu settings you can set color, size of your gesture and set effects for system gestures.
+
+HAVE FUN with gestures in UML. FRI. :)

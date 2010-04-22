@@ -24,18 +24,24 @@ class CPatchPlugin():
         self.__handler = None
         self.__handler2 = None
         self.__handler3 = None
+        self.__handler4 = None
+        self.__handler5 = None        
+                
+        self.settingsChanged = False
         self.counter = 0
         self.init = False                
         self.gc = None   
         self.pixels = []
         self.oldPaint = self.__app.GetWindow('frmMain').picDrawingArea.Paint
         self.color = '#00FF00'         
-        self.size = 3 
+        self.size = 3
+        self.combos = [7,6,13,12]
+                                                                                  
         self.poz = ()
         self.inObject = True
         self.selectedObject = False 
         #minimalna dlzka ciary
-        self.minimumLength = 10                                                                             
+        self.minimumLength = 10 
 
     def Start(self):
         print 'Example patch plugin started'
@@ -57,15 +63,60 @@ class CPatchPlugin():
         return True
     
     def CreateGraphicContext(self):
-        self.gc =  self.drawing_area.window.new_gc()        
-        #self.gc.foreground = gtk.gdk.Color(self.color)        
-
+        self.cmap = self.drawing_area.window.get_colormap()
+        self.gc = self.drawing_area.window.new_gc(foreground = self.cmap.alloc_color(self.color))     
+        
     @mainthread   
     def GestureMode(self,mode):
         if mode == True:                                                        
             self.GesturesOn()
         else:
             self.GesturesOff()
+    
+    def GeneralGesture(self,index):
+        if index == 0:
+            self.__app.GetWindow('frmMain').ActionOpen(self.__app.GetWindow('frmMain').cmdOpen)
+            return
+        if index == 1:
+            self.__app.GetWindow('frmMain').ActionSave(self.__app.GetWindow('frmMain').cmdSave)
+            return
+        if index == 2:
+            self.__app.GetWindow('frmMain').on_mnuOptions_activate(self.__app.GetWindow('frmMain').mnuOptions)
+            return        
+        if index == 3:
+            self.__app.GetWindow('frmMain').on_mnuExport_activate(self.__app.GetWindow('frmMain').mnuExport)
+            return
+        if index == 4:
+            self.__app.GetWindow('frmMain').on_mnuAbout_activate(self.__app.GetWindow('frmMain').mnuAbout)
+            return
+        if index == 5:
+            self.__app.GetWindow('frmMain').on_mnuWebsite_activate(self.__app.GetWindow('frmMain').mnuWebsite)
+            return
+        if index == 6:
+            self.__app.GetWindow('frmMain').nbTabs.NextTab()
+            return            
+        if index == 7:
+            self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
+            return
+        if index == 8:
+            self.__app.GetWindow('frmMain').nbTabs.CloseTab(self.__app.GetWindow('frmMain').picDrawingArea.Diagram)
+            return
+        if index == 9:
+            self.__app.GetWindow('frmMain').nbTabs.CloseAll()
+            return        
+        if index == 10:
+            self.__app.GetWindow('frmMain').mnuBestFit_click(self.__app.GetWindow('frmMain').mnuBestFit)
+            self.Repaint()
+            return
+        if index == 11:
+            self.__app.GetWindow('frmMain').mnuNormalSize_click(self.__app.GetWindow('frmMain').mnuNormalSize)
+            return
+        if index == 12:
+            self.__app.GetWindow('frmMain').on_mnuZoomOut_click(self.__app.GetWindow('frmMain').mnuZoomOut)
+            return
+        if index == 13:
+            self.__app.GetWindow('frmMain').on_mnuZoomIn_click(self.__app.GetWindow('frmMain').mnuZoomIn)
+            return                                        
             
     def AddElement(self,elementName):
         ElementType = self.__app.GetProject().GetMetamodel().GetElementFactory().GetElement(elementName)
@@ -112,20 +163,18 @@ class CPatchPlugin():
             self.prebliknutie()
             return   
         if result[0] == 'system':
-            if result[1] == 'from left to right':
-                self.__app.GetWindow('frmMain').nbTabs.NextTab()        
-                return
             if result[1] == 'from right to left':
-                self.__app.GetWindow('frmMain').nbTabs.PreviousTab()
+                self.GeneralGesture(self.combos[0])
+                return            
+            if result[1] == 'from left to right':
+                self.GeneralGesture(self.combos[1])
+                return
+            if result[1] == 'from down to up':
+                self.GeneralGesture(self.combos[2])
                 return
             if result[1] == 'from up to down':
-                self.__app.GetWindow('frmMain').picDrawingArea.IncScale(SCALE_INCREASE)
-                self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
+                self.GeneralGesture(self.combos[3])
                 return            
-            if result[1] == 'from down to up':
-                self.__app.GetWindow('frmMain').picDrawingArea.IncScale(-SCALE_INCREASE)
-                self.__app.GetWindow('frmMain').UpdateMenuSensitivity()
-                return
         if result[0] == 'element':
             self.AddElement(result[2][1])
             return                                             
@@ -147,11 +196,11 @@ class CPatchPlugin():
             self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
             return
     
-    def GestureSettings(self,size,color):        
+    def GestureSettings(self,size,color,combos):        
         self.size = size
         self.color = color
-        self.gc.foreground = gtk.gdk.Color(self.color)        
-        self.ClearArea()
+        self.settingsChanged = True
+        self.combos = combos                
                 
     def GesturesOn(self):
         self.__app.GetWindow('frmMain').picDrawingArea.on_picEventBox_button_press_event.disable()
@@ -269,6 +318,10 @@ class CPatchPlugin():
         if self.init == False:
             self.init = True
             self.CreateGraphicContext()
+        if self.settingsChanged == True:
+            self.gc.foreground = self.cmap.alloc_color(self.color)
+            self.ClearArea()            
+            self.settingsChanged = False
                                
         if event.button == 1:
             if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()>0:
