@@ -47,7 +47,7 @@ class Plugin(object):
         except PluginInvalidParameter:
             pass                
         self.ada.AddNotification('gesture-invocated',self.GestureInvocate)
-        self.ada.AddNotification('project-opened',self.LoadHelp)
+        #self.ada.AddNotification('project-opened',self.LoadHelp)
                         
     def ChangeGestureMode(self,parameter):                                            
         if (self.gestureButton.GetActive() == True):
@@ -58,8 +58,8 @@ class Plugin(object):
             self.gestureButton.SetLabel('Activate')
             
     def OpenHelp(self,widget):
-        #if self.guiHelp.GetMetamodel()!=self.metamodel:            
-        #    self.LoadHelp()
+        if self.guiHelp.GetMetamodel()!=self.metamodel:            
+            self.LoadHelp()
         self.guiHelp.ShowHelpDialog()
         
         #d = self.ada.GetProject().GetMetamodel().GetUri()
@@ -128,16 +128,16 @@ class Plugin(object):
                 self.manager.CreateDic("")
                 
     def LoadHelp(self):
-        if self.ada.GetProject()== None:
+        if self.ada.GetProject()== None:            
             return
-        self.opened = True
+        #self.opened = True
         d = self.ada.GetProject().GetMetamodel().GetUri()
         pos = d.find('metamodel')
         d = d[(pos+10):len(d)]
-        ic = os.path.join(sys.path[1],"share","addons",d,"metamodel","gestures","diagrams")
+        all = []
+        ic = os.path.join(sys.path[1],"share","addons",d,"metamodel","gestures","diagrams")        
         try:     
             for path in self.ada.GetProject().GetMetamodel().ListDir(ic):
-                all = []
                 if path[0]!='.':
                     p = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ic+"\\"+path))
                     pom = []
@@ -160,12 +160,11 @@ class Plugin(object):
                                     if e.get("name") == p[0][i].get('gestureName'):
                                         a = CGesture(self.manager.alg.patternGestures.GetId(),e)                                        
                                         a.ParseXMLFromString(self.ada.GetProject().GetMetamodel().ReadFile(ces+"\\"+gestPath))
-                                        for i in range(len(a.description)):
-                                            a.description[i].gestureSize = self.manager.alg.patternGestures.GetBoxsize()
+                                        for j in range(len(a.description)):
+                                            a.description[j].gestureSize = self.manager.alg.patternGestures.GetBoxsize()
                                         a.FillDescription()
-                                        break
-                            pom.append([ikona,a.GetDescriptions()])                                                                                    
-                            
+                                        break                            
+                            pom.append([ikona,a.GetDescriptions(),p[0][i].get('help')])                                                                                    
                     if len(p[1])>0:
                         for i in range(len(p[1])):
                             ces = os.path.join(sys.path[1],"share","addons",d,"metamodel","connections")
@@ -184,34 +183,17 @@ class Plugin(object):
                                     if e.get("name") == p[1][i].get('gestureName'):
                                         a = CGesture(self.manager.alg.patternGestures.GetId(),e)                                        
                                         a.ParseXMLFromString(self.ada.GetProject().GetMetamodel().ReadFile(ces+"\\"+gestPath))
-                                        for i in range(len(a.description)):
-                                            a.description[i].gestureSize = self.manager.alg.patternGestures.GetBoxsize()
+                                        for j in range(len(a.description)):
+                                            a.description[j].gestureSize = self.manager.alg.patternGestures.GetBoxsize()
                                         a.FillDescription()
                                         break
-                            pom.append([ikona,a.GetDescriptions()])                            
-                    all.append(pom)                                                                                                    
+                            pom.append([ikona,a.GetDescriptions(),p[1][i].get('help')])
+                    all.append(pom)  
         except:
             a = "This metamodel does not have any defined gestures!" 
             print a
-        #print all[0][1][0]
-        #print "KOLKOKRAT"
         self.guiHelp.SetData(all)
 
-#                        if self.ada.GetCurrentDiagram().GetType() == p.get("id"):
-#                            self.current = p.get("id")
-#                            self.manager.CreateDic(p)
-#                            bool = True
-#                if bool == False:
-#                    self.manager.CreateDic("")           
-#            except:
-#                a = "This metamodel does not have any defined gestures!" 
-#                print a
-#                self.manager.CreateDic("")
-#        
-#        
-#        
-#        print "p"
-#        
     def GetCurrentDiagram(self):
         dia = self.ada.GetCurrentDiagram().GetType()
         for i in self.ada.GetProject().GetMetamodel().GetDiagrams():
@@ -236,7 +218,11 @@ class Plugin(object):
         combos.append(combo1)
         combos.append(combo2)
         combos.append(combo3)
-        combos.append(combo4)    
+        combos.append(combo4)
+        print self.guiHelp.color        
+        self.guiHelp.SetColor(color)
+        self.guiHelp.SetCombos(combos)
+        print self.guiHelp.color
         self.interface.GetAdapter().Notify('changeGestureSettings',size,color,combos)
            
 pluginMain = Plugin

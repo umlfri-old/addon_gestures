@@ -47,7 +47,9 @@ class CGestureManager(object):
                 for j in self.helpCoord:                                
                     if j[2] == 'P':
                         self.helpCoord.insert(self.helpCoord.index(j)+1, ['p','p','p'])                                                                
-                break                   
+                return
+        del self.result[:] 
+        self.result.append('unknown')                  
                          
     def SetCoord(self,pix):
         self.helpCoord = pix
@@ -99,6 +101,8 @@ class CGestureManager(object):
         print self.result
         if self.result[0] == 'delete connection':
             return self.result
+        if self.result[0] == 'unknown':
+            return self.result            
         self.CreateCoordinates()
         a = self.alg.Recognition(self.result)
         if a[0] == 'unknown':
