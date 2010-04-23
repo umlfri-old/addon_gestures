@@ -22,8 +22,8 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
         self.lineDeviation = 20
         self.connectionDistance = 40
         self.elementRecognitionDeviation = 1
-        self.connectionRecognitionDeviation = 1        
-        self.deleteDeviation = 6
+        self.connectionRecognitionDeviation = 2                
+        self.deleteDeviation = 7
 
     #Vytvorenie prazdnej mriezky
     def BoxInitialization(self):
@@ -158,9 +158,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
         odch = 0
         for x in range(len(self.patternGestures.GetGestures())):
             if self.patternGestures.GetGesture(x).gestureType == 'connection':
-                print "AAA"
                 for k in range(len(self.patternGestures.GetGesture(x).description)):
-                    print "JB"                            
                     a = 0
                     for i in range(self.boxSize):
                         for j in range(self.boxSize):
@@ -181,6 +179,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
         if type[0] == 'element':
             self.Boundaries()
             res = self.SystemGesture()
+            print res
             if res!= "direction error":
                 result.append('system')                
                 result.append(res)
@@ -204,7 +203,8 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                         result.append('element')
                         result.append(ele)
                         return result
-                else:               
+                else:             
+                    del result[:]  
                     result.append('unknown')
                     return result
         if type[0] == 'connection':
@@ -226,6 +226,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                     result.append(self.coordinates[0])
                     result.append(self.coordinates[len(self.coordinates)-2])
                 else:
+                    del result[:]
                     result.append('unknown')                    
                 return result
             if self.coordinates[len(self.coordinates)-1][0]!='x':
@@ -241,6 +242,7 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                         poc = poc+1
                         roz = roz+ math.sqrt(math.fabs(i[0]-self.coordinates[0][0])*math.fabs(i[0]-self.coordinates[0][0])+
                                     math.fabs(i[1]-self.coordinates[0][1])*math.fabs(i[1]-self.coordinates[0][1]))
+                prv = roz/poc
                 poc = 0
                 roz = 0                
                 #vzdialenost od konca
@@ -249,6 +251,8 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                         poc = poc+1
                         roz = roz+ math.sqrt(math.fabs(i[0]-self.coordinates[poz-1][0])*math.fabs(i[0]-self.coordinates[poz-1][0])+
                                     math.fabs(i[1]-self.coordinates[poz-1][1])*math.fabs(i[1]-self.coordinates[poz-1][1]))
+                posl = roz/poc                
+                print prv, posl        
                 if prv >= posl:
                     if posl <= self.connectionDistance:
                         result.append(self.coordinates[0])
@@ -270,12 +274,21 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
                     if i!=('p','p'):
                         new.append(i)                    
                 self.coordinates = new
-                #print self.coordinates
                 self.Boundaries()                
                 self.FillBox()                
                 self.MakeBinaryBox()
+                print self.box[0]
+                print self.box[1]
+                print self.box[2]
+                print self.box[3]
+                print self.box[4]                                
                 ele = self.ConnectionComparation()
+                print ele
                 if ele!='unknown':
-                    result.insert(1, ele)                                                                             
+                    result.insert(1, ele)
+                else:             
+                    del result[:]  
+                    result.append('unknown')
+                print result
                 return result
       

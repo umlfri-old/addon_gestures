@@ -19,6 +19,12 @@ class CBoundaryDescription(CDescription):
         #vysledne suradnice        
         self.coordinates = []
     
+    def GetHelpLines(self):
+        return self.helpLines
+    
+    def GetGestureBox(self):
+        return self.gestureBox
+    
     #prevrat mriezku hore nohami
     def ReverseGestureBox(self):
         p = int(self.gestureSize/2)

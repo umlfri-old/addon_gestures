@@ -156,7 +156,9 @@ class CPatchPlugin():
     def GestureRecognize(self,result):
         self.inObject = True
         self.ClearArea()
-        if len(result) == 0:
+        
+        if isinstance(result,list) == False:
+            print "PEJKO"
             self.prebliknutie()
             return                              
         if result[0] == 'unknown':
@@ -174,7 +176,8 @@ class CPatchPlugin():
                 return
             if result[1] == 'from up to down':
                 self.GeneralGesture(self.combos[3])
-                return            
+                return       
+            print "ZEBY"     
         if result[0] == 'element':
             self.AddElement(result[2][1])
             return                                             
@@ -182,6 +185,7 @@ class CPatchPlugin():
             self.AddConnection(result)
             return            
         if result[0] == 'delete element':
+            print "AKO"
             pos = (result[1][0],result[1][1])
             itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
             self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)
@@ -189,6 +193,7 @@ class CPatchPlugin():
             self.__app.GetWindow('frmMain').picDrawingArea.DeleteElements()
             return
         if result[0] == 'delete connection':
+            print "CONO"
             pos = (result[1][0],result[1][1])
             itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(                                                                                        
             self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)
@@ -352,8 +357,9 @@ class CPatchPlugin():
         if event.button == 1:
             if self.counter<self.minimumLength:
             #prebliknutie pri kratkom geste
-                self.prebliknutie()
                 self.counter = 0
+                if (self.selectedObject != True):
+                    self.prebliknutie()
                 return
             #Pridanie priznaku spojenia            
             if (self.pixels[0][2] == 'AE') and (self.pixels[len(self.pixels)-1][2]=='AE'):

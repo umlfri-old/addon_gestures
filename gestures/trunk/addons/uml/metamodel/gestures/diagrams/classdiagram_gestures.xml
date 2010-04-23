@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <DiagramType id="Class diagram">
     <Elements>
-        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" />
-        <GestureRecognizer objectId="Package" gestureName="package" />
-        <GestureRecognizer objectId="Class" gestureName="rectangle" />
-        <GestureRecognizer objectId="Interface" gestureName="interface" />
-        <GestureRecognizer objectId="Object" gestureName="rectangleUpperLine" />        
+        <GestureRecognizer objectId="Note" gestureName="rectangleRightUpperCornerLine" help="Create element: Note" />
+        <GestureRecognizer objectId="Package" gestureName="package" help="Create element: Package" />
+        <GestureRecognizer objectId="Class" gestureName="rectangle" help="Create element: Class" />
+        <GestureRecognizer objectId="Interface" gestureName="interface" help="Create element: Interface" />
+        <GestureRecognizer objectId="Object" gestureName="rectangleUpperLine" help="Create element: Object" />        
     </Elements>
     <Connections>
-        <GestureRecognizer objectId="Generalization" gestureName="filledArrow" />
-        <GestureRecognizer objectId="Implementation" gestureName="filledDashedArrow" />
-        <GestureRecognizer objectId="Association" gestureName="empty" />
-        <GestureRecognizer objectId="Agregation" gestureName="rectangleConnection" />
-        <GestureRecognizer objectId="Compose" gestureName="rectangleMiddleLine" />        
-		<GestureRecognizer objectId="Dependency" gestureName="arrow" />
+        <GestureRecognizer objectId="Generalization" gestureName="filledArrow" help="Create connection: Generalization" />
+        <GestureRecognizer objectId="Implementation" gestureName="filledDashedArrow" help="Create connection: Implementation" />
+        <GestureRecognizer objectId="Association" gestureName="empty" help="Create connection: Association or Note link" />
+        <GestureRecognizer objectId="Agregation" gestureName="rectangleConnection" help="Create connection: Agregation" />
+        <GestureRecognizer objectId="Compose" gestureName="cross" help="Create connection: Compose" />        
+		<GestureRecognizer objectId="Dependency" gestureName="arrow" help="Create connection: Dependency" />
     </Connections>
 </DiagramType>
