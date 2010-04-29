@@ -1,25 +1,50 @@
-#interface pre lubovolny algoritmus na rozoznavanie gest polohovacim zariadenim
 class CGestureAlgorithm(object):
-    #konstruktor
+    """
+    Interface for any recognition algorithm.
+    """
+    
     def __init__(self):
-        #nazov algoritmu
-        self.name = ""
-        #id algoritmu
+        """
+        Constructor of class CGestureAlgorithm.
+        """
+        #algorithm name
+        self.name = ''
+        #algorithm ID
         self.algorithmID = 0
-        #zoznam suradnic gesta
+        #current gesture coordinates
         self.coordinates = []
-        #zoznam vzorovych gest
+        #well known gestures(CGestureSet)
         self.patternGestures = []
-        
-    #algoritmus, ktory vrati rozoznane gesto, v ktorom rozoznavame, type je typ gesta, ci sa jedna o spojenie, element... 
+    
     def Recognition(self,type):
+        """
+        Function which recognize gesture.
+        
+        @type  type: string
+        @param type: gesture type
+        """
         pass
     
     def SetCoordinates(self,coor):
+        """
+        Coordinates setter.
+        
+        @type  coor: list
+        @param coor: gesture coordinates
+        """
         self.coordinates = coor
     
     def GetCoordinates(self):
+        """
+        Coordinates getter
+        
+        @rtype : list
+        @return: gesture coordinates
+        """
         return self.coordinates
     
     def DeleteCoordinates(self):
+        """
+        Delete current coordinates.
+        """
         del self.coordinates[:]

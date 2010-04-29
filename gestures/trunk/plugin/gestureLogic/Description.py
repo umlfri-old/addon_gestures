@@ -1,11 +1,20 @@
-#interface pre popis gesta
 class CDescription(object):
-    #konstruktor
+    """
+    Interface for gesture description.
+    """
+
     def __init__(self,id):
-        #id pouziteho algoritmu
-        self.id = id
+        """
+        Constructor of class CDescription.
         
+        @type  id: int
+        @param id: algorithm id
+        """
+        self.id = id
+    
     #naplni atributy datami o geste
     def ParseXML(self):
-        return None
-    
+        """
+        Fill attributes from XML file.
+        """
+        pass
