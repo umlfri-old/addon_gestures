@@ -1,6 +1,5 @@
 from lxml import etree
 import math
-import os.path
 
 from BoundaryAlgorithm import CBoundaryAlgorithm
 

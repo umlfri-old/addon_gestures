@@ -93,8 +93,6 @@ class Plugin(object):
         """
         if self.ada.GetProject() != None:
             d = self.ada.GetProject().GetMetamodel().GetUri()
-            pos = d.find('metamodel')
-            d = d[(pos+10):len(d)]
             self.helpmetamodel = d
         
         if self.guiHelp.GetMetamodel() != self.helpmetamodel:
@@ -108,17 +106,15 @@ class Plugin(object):
         Load gesture definitions from metamodel.
         """
         d = self.ada.GetProject().GetMetamodel().GetUri()
-        pos = d.find('metamodel')
-        d = d[(pos+10):len(d)]
         bool = True
         if d != self.metamodel:
             xmls = []
             self.metamodel = d
-            ic = os.path.join(sys.path[1],'share','addons',d,'metamodel','gestures','definitions')+'\\'
+            ic = "gestures/definitions/"
             try:
                 for path in self.ada.GetProject().GetMetamodel().ListDir(ic):
                     if path[0] != '.':
-                        pom = self.ada.GetProject().GetMetamodel().ReadFile(ic+path) 
+                        pom = self.ada.GetProject().GetMetamodel().ReadFile(ic+path)
                         valid = StringIO.StringIO(pom)
                         doc = etree.parse(valid)
                         if self.xmlschema.validate(doc) == False:
@@ -139,19 +135,17 @@ class Plugin(object):
         """
         bool = False
         d = self.ada.GetProject().GetMetamodel().GetUri()
-        pos = d.find('metamodel')
-        d = d[(pos+10):len(d)]
-        ic = os.path.join(sys.path[1],'share','addons',d,'metamodel','gestures','diagrams')
+        ic = "gestures/diagrams/"
         if self.current != self.ada.GetCurrentDiagram().GetType():
             try:
                 for path in self.ada.GetProject().GetMetamodel().ListDir(ic):
                     if path[0] != '.':
-                        pom = self.ada.GetProject().GetMetamodel().ReadFile(ic+"\\"+path)
+                        pom = self.ada.GetProject().GetMetamodel().ReadFile(ic+path)
                         p = etree.fromstring(pom)
                         valid = StringIO.StringIO(pom)
                         doc = etree.parse(valid)
                         if self.xmlschema.validate(doc) == False:
-                            print "File" +ic+"\\"+path+ "was not validate!"   
+                            print "File" +ic+path+ "was not validate!"   
                         if self.ada.GetCurrentDiagram().GetType() == p.get('id'):
                             self.current = p.get('id')
                             self.manager.CreateDictionary(p)
@@ -171,34 +165,32 @@ class Plugin(object):
             return
         bool = True
         d = self.ada.GetProject().GetMetamodel().GetUri()
-        pos = d.find('metamodel')
-        d = d[(pos+10):len(d)]
         all = []
-        ic = os.path.join(sys.path[1],'share','addons',d,'metamodel','gestures','diagrams')
+        ic = "gestures/diagrams/"
         try:
             for path in self.ada.GetProject().GetMetamodel().ListDir(ic):
                 if path[0] != '.':
-                    p = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ic+'\\'+path))
+                    p = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ic+path))
                     pom = []
                     pom.append(p.get('id'))
                     if len(p[0])>0:
                         for i in range(len(p[0])):
-                            ces = os.path.join(sys.path[1],'share','addons',d,'metamodel','elements')
+                            ces = "elements/"
                             for elePath in self.ada.GetProject().GetMetamodel().ListDir(ces):
+                                print elePath
                                 if elePath[0] != '.':
-                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+'\\'+elePath))
+                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+elePath))
                                     if e.get("id") == p[0][i].get('objectId'):
                                         iko = e[0].get('path')
-                                        ikoCes = os.path.join(sys.path[1],'share','addons',d,'metamodel',iko)
                                         break
-                            ikona = self.ada.GetProject().GetMetamodel().ReadFile(ikoCes)
-                            ces = os.path.join(sys.path[1],'share','addons',d,'metamodel','gestures','definitions')
+                            ikona = self.ada.GetProject().GetMetamodel().ReadFile(iko)
+                            ces = "gestures/definitions/"         
                             for gestPath in self.ada.GetProject().GetMetamodel().ListDir(ces):
                                 if gestPath[0] != '.':
-                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+'\\'+gestPath))
+                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+gestPath))
                                     if e.get('name') == p[0][i].get('gestureName'):
                                         a = CGesture(self.manager.alg.patternGestures.GetId(),e)
-                                        a.ParseXMLFromString(self.ada.GetProject().GetMetamodel().ReadFile(ces+'\\'+gestPath))
+                                        a.ParseXMLFromString(self.ada.GetProject().GetMetamodel().ReadFile(ces+gestPath))
                                         for j in range(len(a.description)):
                                             a.description[j].gestureSize = self.manager.alg.patternGestures.GetBoxsize()
                                         a.FillDescription()
@@ -206,22 +198,21 @@ class Plugin(object):
                             pom.append([ikona,a.GetDescriptions(),p[0][i].get('help')])
                     if len(p[1]) > 0:
                         for i in range(len(p[1])):
-                            ces = os.path.join(sys.path[1],'share','addons',d,'metamodel','connections')
+                            ces = "connections/"        
                             for conPath in self.ada.GetProject().GetMetamodel().ListDir(ces):
                                 if conPath[0] != '.':
-                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+'\\'+conPath))
+                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+conPath))
                                     if e.get("id") == p[1][i].get('objectId'):
                                         iko = e[0].get('path')
-                                        ikoCes = os.path.join(sys.path[1],'share','addons',d,'metamodel',iko)
                                         break
-                            ikona = self.ada.GetProject().GetMetamodel().ReadFile(ikoCes)
-                            ces = os.path.join(sys.path[1],'share','addons',d,'metamodel','gestures','definitions')
+                            ikona = self.ada.GetProject().GetMetamodel().ReadFile(iko)
+                            ces = "gestures/definitions/"
                             for gestPath in self.ada.GetProject().GetMetamodel().ListDir(ces):
                                 if gestPath[0] != '.':
-                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+'\\'+gestPath))
+                                    e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+gestPath))
                                     if e.get("name") == p[1][i].get('gestureName'):
                                         a = CGesture(self.manager.alg.patternGestures.GetId(),e)
-                                        a.ParseXMLFromString(self.ada.GetProject().GetMetamodel().ReadFile(ces+'\\'+gestPath))
+                                        a.ParseXMLFromString(self.ada.GetProject().GetMetamodel().ReadFile(ces+gestPath))
                                         for j in range(len(a.description)):
                                             a.description[j].gestureSize = self.manager.alg.patternGestures.GetBoxsize()
                                         a.FillDescription()

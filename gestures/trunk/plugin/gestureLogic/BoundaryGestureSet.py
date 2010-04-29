@@ -28,7 +28,7 @@ class CBoundaryGestureSet(CGestureSet):
         """
         Load gestures from directory.
         """
-        ces = os.path.join(os.path.dirname(__file__), 'gestureDefinitions')+'\\'
+        ces = os.path.join(os.path.dirname(__file__), 'gestureDefinitions')+'/'
         for path in os.listdir(ces):
             if path[0] != '.':
                 a = CGesture(self.id,ces+path)
@@ -51,6 +51,7 @@ class CBoundaryGestureSet(CGestureSet):
                 a.description[i].gestureSize = self.boxsize
             a.FillDescription()
             self.gestures.append(a)
+        print len(self.gestures)
     
     def GetId(self):
         """
