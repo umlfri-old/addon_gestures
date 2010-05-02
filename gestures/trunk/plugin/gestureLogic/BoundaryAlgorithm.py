@@ -37,6 +37,8 @@ class CBoundaryAlgorithm(CGestureAlgorithm):
         self.connectionRecognitionDeviation = 2
         #the maximum wrong pixels in delete gesture
         self.deleteDeviation = 7
+        #gesture coordinates
+        self.coordinates = []
 
     def BoxInitialization(self):
         """
