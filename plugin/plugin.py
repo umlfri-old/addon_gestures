@@ -177,7 +177,6 @@ class Plugin(object):
                         for i in range(len(p[0])):
                             ces = "elements/"
                             for elePath in self.ada.GetProject().GetMetamodel().ListDir(ces):
-                                print elePath
                                 if elePath[0] != '.':
                                     e = etree.fromstring(self.ada.GetProject().GetMetamodel().ReadFile(ces+elePath))
                                     if e.get("id") == p[0][i].get('objectId'):

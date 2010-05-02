@@ -41,10 +41,9 @@ class CGestureManager(object):
             if i[2] == 'AC':
                 self.deletePoints.append(i)
         if len(self.deletePoints) >= self.deleteConnectionCount:
-            for i in range(len(self.deletePoints)):
-                for j in range(len(self.deletePoints)):
-                    roz = math.sqrt(math.fabs(self.deletePoints[i][0]-self.deletePoints[j][0])+
-                          math.fabs(self.deletePoints[i][1]-self.deletePoints[j][1]))
+            for i in range(len(self.helpCoord)):
+                    roz = math.sqrt(math.fabs(self.helpCoord[i][0]-self.deletePoints[0][0])+
+                          math.fabs(self.helpCoord[i][1]-self.deletePoints[0][1]))
                     if roz > self.deleteConnectionDistance:
                         isHigher = True
             if isHigher == False:

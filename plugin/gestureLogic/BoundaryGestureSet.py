@@ -51,7 +51,6 @@ class CBoundaryGestureSet(CGestureSet):
                 a.description[i].gestureSize = self.boxsize
             a.FillDescription()
             self.gestures.append(a)
-        print len(self.gestures)
     
     def GetId(self):
         """
