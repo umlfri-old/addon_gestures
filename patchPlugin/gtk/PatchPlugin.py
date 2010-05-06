@@ -365,7 +365,7 @@ class CPatchPlugin():
         self.counter = self.counter+1
         self.drawing_area.window.draw_rectangle(self.gc, True, x, y,self.size,self.size)
         
-        pos = (x,y)
+        pos = self.__app.GetWindow('frmMain').picDrawingArea.GetAbsolutePos((x, y))
         if len(self.pixels) > 0 and self.inObject == True:
             if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
             self.__app.GetWindow('frmMain').picDrawingArea.canvas, (self.pixels[0][0],self.pixels[0][1])),CElement):
@@ -374,19 +374,19 @@ class CPatchPlugin():
                 != self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
                 self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos)):
                     self.inObject = False
-                    self.pixels.append([x,y,'V'])
+                    self.pixels.append([float(pos[0]),float(pos[1]),'V'])
                     return
         
         if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
            self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos) == None:
-            self.pixels.append([x,y,'N'])
+            self.pixels.append([float(pos[0]),float(pos[1]),'N'])
         else:
             if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
                 self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos),CElement):
-                self.pixels.append([x,y,'AE'])
+                self.pixels.append([float(pos[0]),float(pos[1]),'AE'])
             if isinstance(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
                self.__app.GetWindow('frmMain').picDrawingArea.canvas, pos),CConnection):
-                self.pixels.append([x,y,'AC'])
+                self.pixels.append([float(pos[0]),float(pos[1]),'AC'])
     
     def Blink(self):
         """
@@ -450,7 +450,7 @@ class CPatchPlugin():
         
         if event.button == 1 and event.type == gtk.gdk._2BUTTON_PRESS:
             if len(tuple(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected())) == 1:
-                for Element in  self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected():
+                for Element in self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected():
                     if isinstance(Element, (CElement,CConnection)):
                         self.__app.GetWindow('frmMain').picDrawingArea.emit('open-specification',Element)
                         return True
@@ -459,13 +459,12 @@ class CPatchPlugin():
             if self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected()>0:
                 self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
             
-            pos = (event.x,event.y)
+            pos = self.__app.GetWindow('frmMain').picDrawingArea.GetAbsolutePos((event.x, event.y))
             itemSel = self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetElementAtPosition(
                       self.__app.GetWindow('frmMain').picDrawingArea.canvas,pos)
             #if under position is element or connection select it
             if (((isinstance(itemSel,CElement)) or (isinstance(itemSel,CConnection))) and
                 (len(self.pixels) == 0)):
-                    self.__app.GetWindow('frmMain').picDrawingArea.Diagram.DeselectAll()
                     self.__app.GetWindow('frmMain').picDrawingArea.Diagram.AddToSelection(itemSel)
                     self.selectedObject = True
                     self.Repaint()
@@ -474,9 +473,16 @@ class CPatchPlugin():
                 self.DrawBrush(widget, event.x, event.y)
         #senf coordinates for recognition
         if event.button == 3:
+            #move element to position
+            if len(self.pixels) == 0 and len(tuple(self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected())) == 1:
+                for Element in self.__app.GetWindow('frmMain').picDrawingArea.Diagram.GetSelected():
+                    if isinstance(Element, CElement):
+                        Element.SetPosition(pos = self.__app.GetWindow('frmMain').picDrawingArea.GetAbsolutePos((event.x, event.y)))
+                        self.Repaint()
+                        return
             if len(self.pixels) >= self.minimumLength:
                 self.__app.GetPluginAdapter().Notify('gesture-invocated',self.pixels)
-                self.poz = (event.x,event.y)
+                self.poz = self.__app.GetWindow('frmMain').picDrawingArea.GetAbsolutePos((event.x, event.y))
             else:
                 self.Blink()
     
