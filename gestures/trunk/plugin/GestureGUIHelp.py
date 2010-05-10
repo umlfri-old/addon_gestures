@@ -32,6 +32,8 @@ class CGestureGUIHelp(object):
         self.CreateGeneralHelp()
         #items loaded
         self.count = 0
+        #current diagram
+        self.diagram = ""
     
     def InitComponents(self):
         """
@@ -156,7 +158,7 @@ class CGestureGUIHelp(object):
     def ShowHelpDialog(self): 
         """
         Show dialog, if its shown for firs time create pixmap, color map and grpahic context.
-        """        
+        """
         self.dialog.show_all()
         if self.loaded == False:
             self.loaded = True
@@ -379,7 +381,7 @@ class CGestureGUIHelp(object):
         Data in metamodel getter.
         
         @rtype : list
-        @param paData: data which in which are information about current metamodel elements and connections
+        @return: data in which are information about current metamodel elements and connections
         """
         return self.data
     
@@ -400,13 +402,24 @@ class CGestureGUIHelp(object):
         @param paCombos: list of system gesture settings
         """
         self.combos = paCombos
+    
+    def SetCurrentDiagram(self,paDiagram):
+        """
+        Current diagram name setter.
         
+        @type paDiagram: string
+        @param paDiagram: name of current diagram
+        """
+        self.diagram = paDiagram
+    
     def ReturnEffect(self,index):
         """
         Returns name of action under index in combo box.
         
         @type index: int
         @param index: combo box index
+        @rtype : string
+        @return: name of action
         """
         if index == 0:
             return 'Open project'
