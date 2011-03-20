@@ -18,8 +18,5 @@
 	<Plugin>
 		<Code os="all" language="python" path="plugin" />
         <Patch module="patchPlugin" />
-
-		
-		<Metamodel required="urn:umlfri.org:metamodel:gestures" />
 	</Plugin>
 </AddOn>
